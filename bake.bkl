@@ -1,0 +1,40 @@
+toolsets = gnu vs2010;
+
+archs    = x86 x86_64;
+
+template basic {
+  
+  includedirs = ./include;
+
+}
+
+library gc : basic {
+  sources { 
+    gc.c
+  }
+}
+
+library thread : basic  {
+  sources { 
+    src/thread.c
+  }
+}
+
+template core : basic  {
+    deps += gc;
+    deps += thread;
+}
+
+
+program hsc : core {
+  
+  sources { 
+    src/compiler.c
+  }
+}
+
+program hs : core {
+  sources {
+    src/interpreter.c
+  }
+}
