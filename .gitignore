@@ -1,0 +1,10 @@
+bake.sln
+gc.vcxproj
+gc.vcxproj.filters
+hs.vcxproj
+hs.vcxproj.filters
+hsc.vcxproj
+hsc.vcxproj.filters
+thread.vcxproj
+thread.vcxproj.filters
+GNUmakefile
