@@ -75,7 +75,7 @@ hs_thread_end( hs_thread *th )
 }
 
 int
-hs_thread_join( hs_thread *th )
+hs_thread_join( hs_thread *th, int *result  )
 {
 #ifdef _WIN32
   switch (WaitForSingleObject(th->mutex, INFINITE))
@@ -84,16 +84,18 @@ hs_thread_join( hs_thread *th )
       switch (WaitForSingleObject(th->handle, INFINITE))
       {
         case WAIT_OBJECT_0:
-          return th->r;
+          if (result) *result = th->r;
+          return 0;
         default: break;
       }
     default: break;
   };
-  return -1;
+  return 1;
 #else
   void *result;
-  pthread_join(th->handle, &result);
-  return th->r;
+  int p = pthread_join(th->handle, &result);
+  if (result) *result = th->r;
+  return p;
 #endif  
 }
 
