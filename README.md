@@ -5,3 +5,6 @@ Humming script contains a collection of modular pieces in c, to create an interp
 
 ### hs/array
 Macros to implement dynamic arrays quickly.
+
+## hs/thread
+Contains a simple thread lock/unlock cross platform API.
