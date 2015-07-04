@@ -1,6 +1,10 @@
 #ifndef HS_THREAD_H
 #define HS_THREAD_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef int (*hs_thread_func)(void *);
 
 #ifdef _WIN32
@@ -139,5 +143,9 @@ hs_mutex_lock( hs_mutex *mx );
  */
 int
 hs_mutex_unlock( hs_mutex *mx );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* HS_THREAD_H */
