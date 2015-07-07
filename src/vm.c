@@ -2,6 +2,16 @@
 #define HS_MAX_ARGS       3
 #define HS_HEAP_INIT_SIZE 4
 
+int logicalRightShift(int x, int n) {
+    return (unsigned)x >> n;
+}
+int arithmeticRightShift(int x, int n) {
+    if (x < 0 && n > 0)
+        return x >> n | ~(~0U >> n);
+    else
+        return x >> n;
+}
+
 typedef struct hs_code_stack hs_code_stack;
 typedef union hs_opcode hs_opcode;
 
@@ -172,27 +182,27 @@ static uint8_t IP_MODE[] = {
   /* 058 - <<UNDEFINED>> */ HS_OA_ZERO,
   /* 059 - <<UNDEFINED>> */ HS_OA_ZERO, 
   
-  /* 060 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 061 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 062 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 063 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 064 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 065 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 066 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 067 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 068 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 069 - HS_OP_INVALID */ HS_OA_ZERO,
+  /* 060 - HS_OP_GET_STACK     */ HS_OA_ZERO,
+  /* 061 - HS_OP_SET_STACK     */ HS_OA_ZERO,
+  /* 062 - HS_OP_GET_ARG       */ HS_OA_ZERO,
+  /* 063 - HS_OP_SET_FIELD     */ HS_OA_ZERO,
+  /* 064 - HS_OP_GET_FIELD     */ HS_OA_ZERO,
+  /* 065 - HS_OP_STACK_RESERVE */ HS_OA_ZERO,
+  /* 066 - HS_OP_MOVE          */ HS_OA_ZERO,
+  /* 067 - HS_OP_SWAP          */ HS_OA_ZERO,
+  /* 068 - <<UNDEFINED>>       */ HS_OA_ZERO,
+  /* 069 - <<UNDEFINED>>       */ HS_OA_ZERO,
   
-  /* 070 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 071 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 072 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 073 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 074 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 075 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 076 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 077 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 078 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 079 - HS_OP_INVALID */ HS_OA_ZERO, 
+  /* 070 - HS_OP_PREPARE_ARGS  */ HS_OA_ZERO,
+  /* 071 - HS_OP_SET_ARG       */ HS_OA_ZERO,
+  /* 072 - HS_OP_CALL          */ HS_OA_ZERO,
+  /* 073 - <<UNDEFINED>> */       HS_OA_ZERO,
+  /* 074 - <<UNDEFINED>> */       HS_OA_ZERO,
+  /* 075 - <<UNDEFINED>> */ HS_OA_ZERO,
+  /* 076 - <<UNDEFINED>> */ HS_OA_ZERO,
+  /* 077 - <<UNDEFINED>> */ HS_OA_ZERO,
+  /* 078 - <<UNDEFINED>> */ HS_OA_ZERO,
+  /* 079 - <<UNDEFINED>> */ HS_OA_ZERO, 
   
   /* 080 - HS_OP_INVALID */ HS_OA_ZERO,
   /* 081 - HS_OP_INVALID */ HS_OA_ZERO,
