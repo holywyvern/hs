@@ -56,7 +56,9 @@ enum hs_opcode
   HS_OP_JUMP_GE_ZERO_INDIRECT     =  85, /* if <reg> >= 0 then jump( <reg> ) */
   
   HS_OP_RETURN                    =  90, /* return( <reg> ) */
- 
+  HS_OP_RETURN_NULL               =  91, /* return( null ) */
+  HS_OP_RETURN_SELF               =  92, /* return( self ) */
+  
   HS_OP_RESERVE_ARGS              = 100, /* arguments.push( <uint16> ) */
   HS_OP_RESERVE_ARGS_INDIRECT     = 101, /* arguments.push( <reg> ) */
   HS_OP_SET_ARG                   = 102, /* arguments[ <uint16> ] <- <reg> */
@@ -128,17 +130,97 @@ enum hs_opcode
   HS_OP_BOX_FLOAT                 = 202, /* <reg> <- float : &<reg> */
   HS_OP_UNBOX                     = 203, /* <reg> <- *<reg> */
  
-  HS_OP_LOCK                      = 210, /* <reg> <- lock( <reg> ) */
+  HS_OP_LOCK                      = 210, /* lock( <reg> ) */
   HS_OP_UNLOCK                    = 211, /* unlock( <reg> ) */
   
   HS_OP_ARRAY_NEW                 = 220, /* <reg> <- [ <uint16> ] */
-  HS_OP_ARRAY_NEW_INDIRECT        = 220, /* <reg> <- [ <reg> ] */
-  HS_OP_ARRAY_GET                 = 221, /* <reg> <- <reg>[<reg>] */
-  HS_OP_ARRAY_SET                 = 222, /* <reg> [<reg>] <- <reg> */
-  HS_OP_ARRAY_DELETE              = 223, /* delete( <reg>[<reg>] ) */
+  HS_OP_ARRAY_NEW_INDIRECT        = 221, /* <reg> <- [ <reg> ] */
+  HS_OP_ARRAY_GET                 = 222, /* <reg> <- <reg>[<reg>] */
+  HS_OP_ARRAY_SET                 = 223, /* <reg> [<reg>] <- <reg> */
+  HS_OP_ARRAY_DELETE              = 224, /* delete( <reg>[<reg>] ) */
+  
+  HS_OP_NEW_TRY_CONTEXT           = 230, /* try( <uint16> ) */
+  HS_OP_NEW_TRY_CONTEXT_INDIRECT  = 231, /* try( <reg> ) */
+  HS_OP_NEW_TRY_CONTEXT_NO_FINAL  = 232, /* try( ) */
+  HS_OP_ADD_CATCH                 = 233, /* catch( <reg>, <uint16> ) */
+  HS_OP_ADD_CATCH_INDIRECT        = 234, /* catch( <reg>, <reg> ) */
+  HS_OP_THROW                     = 235, /* throw( <reg> ) */
+  HS_OP_END_TRY_CONTEXT           = 236, /* end() */
+  
+  HS_OP_INT_INC                   = 240, /* inc( int : <reg> ) */
+  HS_OP_INT_DEC                   = 241, /* dec( int : <reg> ) */
+  HS_OP_FLOAT_INC                 = 242, /* inc( float : <reg> ) */
+  HS_OP_FLOAT_DEC                 = 243, /* dec( float : <reg> ) */  
   
 };
 
+union hs_opcode_params
+{
+  uint8_t  u8[3];
+  struct { uint16_t u16; uint8_t u8; } set;
+};
+
+extern const char HS_OPCODE_PARAM_TYPE[];
+
+#define HS_OPCODE_NO_PARAMS 0
+#define HS_OPCODE_ONE_REG_PARAMS 1
+#define HS_OPCODE_TWO_REG_PARAMS 2
+#define HS_OPCODE_THREE_REG_PARAMS 3
+#define HS_OPCODE_UINT_PARAMS 4
+#define HS_OPCODE_UINT_AND_REG_PARAMS 5
+
+#define HS_OP_DECODE(opcode, instruction, params)                              \
+  do                                                                           \
+  {                                                                            \
+    uint32_t o_opcode_ = (opcode);                                             \
+    uint16_t o_ta_, o_tb_;                                                     \
+    instruction = (uint8_t)( ( o_opcode_ >> 24) && 255 );                      \
+    switch (HS_OPCODE_PARAM_TYPE[instruction])                                 \
+    {                                                                          \                                                               \
+      case HS_OPCODE_THREE_REG_PARAMS:                                         \
+        (params).u8[2] = (uint8_t)(  o_opcode_        & 255 );                 \
+      case HS_OPCODE_TWO_REG_PARAMS:                                           \
+        (params).u8[1] = (uint8_t)( (o_opcode_ >>  8) & 255);                  \
+      case HS_OPCODE_ONE_REG_PARAMS:                                           \
+        (params).u8[0] = (uint8_t)( (o_opcode_ >> 16) & 255);                  \
+        break;                                                                 \
+      case HS_OPCODE_UINT_AND_REG_PARAMS:                                      \
+        (params).set.u8  = (uint8_t)( ( o_opcode_ >> 16 ) & 255 );             \
+      case HS_OPCODE_UINT_PARAMS:                                              \
+        o_ta_ = (uint16_t)( ( o_opcode_ >>  8 ) & 255 );                       \
+        o_tb_ = (uint16_t)(   o_opcode_         & 255 );                       \
+        (params).set.u16 = ( ( o_ta_ << 8)|o_tb_ ) ;                           \
+        break;                                                                 \
+      default:                                                                 \
+        break;                                                                 \
+    }                                                                          \
+  } while (0)
+
+#define HS_OP_ENCODE(instruction, params, opcode)                              \
+  do                                                                           \
+  {                                                                            \
+    opcode = ( ((instruction) & 255) << 24 );                                  \
+    switch (HS_OPCODE_PARAM_TYPE[instruction])                                 \
+    {                                                                          \
+      case HS_OPCODE_THREE_REG_PARAMS:                                         \
+        opcode |= (params).u8[2];                                              \
+      case HS_OPCODE_TWO_REG_PARAMS:                                           \
+        opcode |= (params).u8[1] << 8;                                         \
+      case HS_OPCODE_ONE_REG_PARAMS:                                           \
+        opcode |= (params).u8[1] << 16;                                        \
+        break;                                                                 \
+      case HS_OPCODE_UINT_AND_REG_PARAMS:                                      \
+        opcode |= (params).set.u8 << 16;                                       \
+      case HS_OPCODE_UINT_PARAMS:                                              \
+        opcode |= ( (params).set.u16 << 8 ) << 8;                              \
+        opcode |= (params).set.u16 & 255;                                      \
+        break;                                                                 \
+      default:                                                                 \
+        break;                                                                 \
+    }                                                                          \
+  }                                                                            \
+  while (0)
+    
 #define __cplusplus
 }
 #endif

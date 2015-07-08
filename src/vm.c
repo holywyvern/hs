@@ -2,6 +2,7 @@
 #define HS_MAX_ARGS       3
 #define HS_HEAP_INIT_SIZE 4
 
+/*
 int logicalRightShift(int x, int n) {
     return (unsigned)x >> n;
 }
@@ -11,444 +12,307 @@ int arithmeticRightShift(int x, int n) {
     else
         return x >> n;
 }
+*/
 
-typedef struct hs_code_stack hs_code_stack;
-typedef union hs_opcode hs_opcode;
+#define HS_OPCODE_NO_PARAMS 0
+#define HS_OPCODE_ONE_REG_PARAMS 1
+#define HS_OPCODE_TWO_REG_PARAMS 2
+#define HS_OPCODE_THREE_REG_PARAMS 3
+#define HS_OPCODE_UINT_PARAMS 4
+#define HS_OPCODE_UINT_AND_REG_PARAMS 5
 
-union hs_opcode
-{
-  uint8_t  i8[4];
-  uint16_t i16[2];
-  uint32_t i32;
-};
+const char HS_OPCODE_PARAM_TYPE[] = {
+  
+  HS_OPCODE_NO_PARAMS,           /* 001 - HS_OP_NOP */
+  HS_OPCODE_NO_PARAMS,           /* 002 - HS_OP_BREAKPOINT */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 003 - HS_OP_HALT  */
+ 
+  HS_OPCODE_NO_PARAMS,           /* 004 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 005 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 006 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 007 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 008 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 009 - <<undefined>> */
+  
+  HS_OPCODE_ONE_REG_PARAMS,      /* 010 - HS_OP_LOAD_NULL */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 011 - HS_OP_LOAD_FALSE */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 012 - HS_OP_LOAD_TRUE */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 013 - HS_OP_LOAD_ARG_INDIRECT */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 014 - HS_OP_LOAD_ARG */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 015 - HS_OP_LOAD_LOCAL */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 016 - HS_OP_LOAD_LOCAL_INDIRECT */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 017 - HS_OP_LOAD_FIELD */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 018 - HS_OP_LOAD_FIELD_INDIRECT */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 019 - HS_OP_LOAD_LOCAL_CONST */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 020 - HS_OP_LOAD_LOCAL_CONST_INDIRECT */
+ 
+  HS_OPCODE_NO_PARAMS,           /* 021 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 022 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 023 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 024 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 025 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 026 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 027 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 028 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 029 - <<undefined>> */
+ 
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 030 - HS_OP_STORE_LOCAL */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 031 - HS_OP_STORE_LOCAL_INDIRECT */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 032 - HS_OP_STORE_FIELD */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 033 - HS_OP_STORE_FIELD_INDIRECT */
+ 
+  HS_OPCODE_NO_PARAMS,           /* 034 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 035 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 036 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 037 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 038 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 039 - <<undefined>> */
+ 
+  HS_OPCODE_TWO_REG_PARAMS,      /* 040 - HS_OP_MOVE */
+ 
+  HS_OPCODE_NO_PARAMS,           /* 041 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 042 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 043 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 044 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 045 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 046 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 047 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 048 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 049 - <<undefined>> */
+ 
+  HS_OPCODE_ONE_REG_PARAMS,      /* 050 - HS_OP_STACK_POP */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 051 - HS_OP_STACK_PUSH */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 052 - HS_OP_STACK_PEEK */
+  HS_OPCODE_NO_PARAMS,           /* 053 - HS_OP_STACK_DUP */
+ 
+  HS_OPCODE_NO_PARAMS,           /* 054 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 055 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 056 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 057 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 058 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 059 - <<undefined>> */ 
+ 
+  HS_OPCODE_UINT_PARAMS,         /* 060 - HS_OP_JUMP */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 061 - HS_OP_JUMP_EQ_REG */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 062 - HS_OP_JUMP_NE_REG */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 063 - HS_OP_JUMP_LT_REG  */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 064 - HS_OP_JUMP_LE_REG */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 065 - HS_OP_JUMP_GT_REG */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 066 - HS_OP_JUMP_GE_REG */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 067 - HS_OP_JUMP_EQ_ZERO */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 068 - HS_OP_JUMP_NE_ZERO */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 069 - HS_OP_JUMP_LT_ZERO */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 070 - HS_OP_JUMP_LE_ZERO */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 071 - HS_OP_JUMP_GT_ZERO */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 072 - HS_OP_JUMP_GE_ZERO */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 073 - HS_OP_JUMP_INDIRECT */
+  
+  HS_OPCODE_NO_PARAMS,           /* 074 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 075 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 076 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 077 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 078 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 079 - <<undefined>> */ 
+  
+  HS_OPCODE_TWO_REG_PARAMS,      /* 080 - HS_OP_JUMP_EQ_ZERO_INDIRECT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 081 - HS_OP_JUMP_NE_ZERO_INDIRECT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 082 - HS_OP_JUMP_LT_ZERO_INDIRECT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 083 - HS_OP_JUMP_LE_ZERO_INDIRECT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 084 - HS_OP_JUMP_GT_ZERO_INDIRECT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 085 - HS_OP_JUMP_GE_ZERO_INDIRECT */
+  
+  HS_OPCODE_NO_PARAMS,           /* 086 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 087 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 088 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 089 - <<undefined>> */     
+  
+  HS_OPCODE_ONE_REG_PARAMS,      /* 090 - HS_OP_RETURN */
+  HS_OPCODE_NO_PARAMS,           /* 091 - HS_OP_RETURN_NULL */
+  HS_OPCODE_NO_PARAMS,           /* 092 - HS_OP_RETURN_SELF */
+  
+  HS_OPCODE_NO_PARAMS,           /* 093 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 094 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 095 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 096 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 097 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 098 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 099 - <<undefined>> */   
+  
+  HS_OPCODE_UINT_PARAMS,         /* 100 - HS_OP_RESERVE_ARGS */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 101 - HS_OP_RESERVE_ARGS_INDIRECT */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 102 - HS_OP_SET_ARG */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 103 - HS_OP_SET_ARG_INDIRECT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 104 - HS_OP_CALL */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 105 - HS_OP_LOCAL_CALL */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 106 - HS_OP_DYNAMIC_CAL */
+  
+  HS_OPCODE_NO_PARAMS,           /* 107 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 108 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 109 - <<undefined>> */    
+  
+  HS_OPCODE_ONE_REG_PARAMS,      /* 110 - HS_OP_SET_THIS */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 111 - HS_OP_SET_MODULE */
+  
+  HS_OPCODE_NO_PARAMS,           /* 112 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 113 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 114 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 115 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 116 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 117 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 118 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 119 - <<undefined>> */    
+  
+  HS_OPCODE_ONE_REG_PARAMS,      /* 120 - HS_OP_GET_THIS    */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 121 - HS_OP_GET_MODULE  */
+  
+  HS_OPCODE_NO_PARAMS,           /* 122 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 123 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 124 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 125 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 126 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 127 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 128 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 129 - <<undefined>> */    
+  
+  HS_OPCODE_THREE_REG_PARAMS,    /* 130 - HS_OP_BOOL_AND */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 131 - HS_OP_BOOL_OR  */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 132 - HS_OP_BOOL_XOR */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 133 - HS_OP_BOOL_CMP */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 134 - HS_OP_BOOL_NOT */
+  
+  HS_OPCODE_NO_PARAMS,           /* 135 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 136 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 137 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 138 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 139 - <<undefined>> */   
+  
+  HS_OPCODE_THREE_REG_PARAMS,    /* 140 - HS_OP_INT_ADD */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 141 - HS_OP_INT_SUB */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 142 - HS_OP_INT_MUL */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 143 - HS_OP_INT_DIV */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 144 - HS_OP_INT_MOD */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 145 - HS_OP_INT_REM */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 146 - HS_OP_INT_SHL */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 147 - HS_OP_INT_SHR */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 148 - HS_OP_INT_LSL */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 149 - HS_OP_INT_LSR */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 150 - HS_OP_INT_AND */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 151 - HS_OP_INT_OR */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 152 - HS_OP_INT_XOR */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 153 - HS_OP_INT_CMP */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 154 - HS_OP_INT_NEG */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 155 - HS_OP_INT_CPL */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 156 - HS_OP_INT_POW */
+  
+  HS_OPCODE_NO_PARAMS,           /* 157 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 158 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 159 - <<undefined>> */
+  
+  HS_OPCODE_THREE_REG_PARAMS,    /* 160 - HS_OP_FLOAT_ADD */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 161 - HS_OP_FLOAT_SUB */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 162 - HS_OP_FLOAT_MUL */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 163 - HS_OP_FLOAT_DIV */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 164 - HS_OP_FLOAT_SQRT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 165 - HS_OP_FLOAT_EXP */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 166 - HS_OP_FLOAT_POW */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 167 - HS_OP_FLOAT_LOG2 */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 168 - HS_OP_FLOAT_LOG */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 169 - HS_OP_FLOAT_LN */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 170 - HS_OP_FLOAT_SIN */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 171 - HS_OP_FLOAT_COS */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 172 - HS_OP_FLOAT_TAN */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 173 - HS_OP_FLOAT_ASIN */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 174 - HS_OP_FLOAT_ACOS */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 175 - HS_OP_FLOAT_ATAN */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 176 - HS_OP_FLOAT_ATAN2 */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 177 - HS_OP_FLOAT_NEG */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 178 - HS_OP_FLOAT_CMP */
+ 
+  HS_OPCODE_NO_PARAMS,           /* 179 - <<undefined>> */
+ 
+  HS_OPCODE_TWO_REG_PARAMS,      /* 180 - HS_OP_BOOL2INT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 181 - HS_OP_INT2BOOL */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 182 - HS_OP_INT2FLOAT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 183 - HS_OP_FLOAT2INT */
+ 
+  HS_OPCODE_NO_PARAMS,           /* 184 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 185 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 186 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 187 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 188 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 189 - <<undefined>> */
+ 
+  HS_OPCODE_ONE_REG_PARAMS,      /* 190 - HS_OP_NEW */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 191 - HS_OP_EXTEND */
+ 
+  HS_OPCODE_NO_PARAMS,           /* 192 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 193 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 194 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 195 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 196 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 197 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 198 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 199 - <<undefined>> */ 
+ 
+  HS_OPCODE_TWO_REG_PARAMS,      /* 200 - HS_OP_BOX_BOOL */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 201 - S_OP_BOX_INT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 202 - HS_OP_BOX_FLOAT */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 203 - HS_OP_UNBOX */
+ 
+  HS_OPCODE_NO_PARAMS,           /* 204 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 205 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 206 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 207 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 208 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 209 - <<undefined>> */  
+ 
+  HS_OPCODE_ONE_REG_PARAMS,      /* 210 - HS_OP_LOCK */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 211 - HS_OP_UNLOCK */
+  
+  HS_OPCODE_NO_PARAMS,           /* 212 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 213 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 214 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 215 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 216 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 217 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 218 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 219 - <<undefined>> */    
+  
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 220 - HS_OP_ARRAY_NEW */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 221 - HS_OP_ARRAY_NEW_INDIRECT */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 222 - HS_OP_ARRAY_GET */
+  HS_OPCODE_THREE_REG_PARAMS,    /* 223 - HS_OP_ARRAY_SET */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 224 - HS_OP_ARRAY_DELETE */  
+  
+  HS_OPCODE_UINT_PARAMS,         /* 231 - HS_OP_NEW_TRY_CONTEXT */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 232 - HS_OP_NEW_TRY_CONTEXT_INDIRECT */
+  HS_OPCODE_NO_PARAMS,           /* 233 - HS_OP_NEW_TRY_CONTEXT_NO_FINAL */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 234 - HS_OP_ADD_CATCH */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 235 - HS_OP_ADD_CATCH_INDIRECT */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 236 - HS_OP_THROW */
+  HS_OPCODE_NO_PARAMS,           /* 237 - HS_OP_END_TRY_CONTEXT */
+  
+  HS_OPCODE_NO_PARAMS,           /* 238 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 239 - <<undefined>> */
 
-union hs_opcode_arg
-{
-  hs_int    as_int;
-  hs_float  as_float;
-  uint8_t   as_chars[3];
-  hs_object as_object;
-};
-
-struct hs_code_stack
-{
-  hs_module    *module;
-  int           run;
-  size_t        opcode;
-  uint8_t       code;
-  hs_object     temp;
-  hs_object     registers[HS_MAX_REGISTERS];
-  hs_opcode_arg args[HS_MAX_ARGS];
-  struct 
-  {
-    hs_object *data;
-    size_t     size;
-    size_t     capa;
-  } heap;
-};
-
-#define HS_OP_INVALID     0 
-#define HS_OP_EXIT        1
-#define HS_OP_NOP         2
-
-#define HS_OP_JUMP       10
-#define HS_OP_JUMP_LT    11
-#define HS_OP_JUMP_GT    12
-#define HS_OP_JUMP_LE    13
-#define HS_OP_JUMP_GE    14
-#define HS_OP_JUMP_EQ    15
-#define HS_OP_JUMP_NE    16
-
-#define HS_OP_IADD       20
-#define HS_OP_ISUB       21
-#define HS_OP_IMUL       22
-#define HS_OP_IDIV       23
-#define  HS_OP_IMOD      24
-#define HS_OP_IREM       25
-#define HS_OP_IPOW       26
-#define HS_OP_ISHL       27
-#define HS_OP_ISHR       28
-#define HS_OP_IUSHR      29
-#define HS_OP_IAND       30
-#define HS_OP_IOR        31
-#define HS_OP_IXOR       32
-#define HS_OP_INOT       33
-#define HS_OP_ICPL       34
-#define HS_OP_ICMP       35
-#define HS_OP_IINC       36
-#define HS_OP_IDEC       37
-#define HS_OP_INEG       38
-
-#define HS_OP_FADD       40
-#define HS_OP_FSUB       41
-#define HS_OP_FMUL       42
-#define HS_OP_FDIV       43
-#define HS_OP_FPOW       44
-#define HS_OP_FNEG       45
-#define HS_OP_FCMP       46
-#define HS_OP_FINC       47
-#define HS_OP_FDEC       48
-#define HS_OP_SIN        49
-#define HS_OP_COS        50
-#define HS_OP_TAN        51
-#define HS_OP_ASIN       52
-#define HS_OP_ACOS       53 
-#define HS_OP_ATAN       54
-#define HS_OP_ATAN2      55
-
-#define HS_OP_GET_STACK     60
-#define HS_OP_SET_STACK     61
-#define HS_OP_GET_ARG       62
-#define HS_OP_SET_FIELD     63     
-#define HS_OP_GET_FIELD     64
-#define HS_OP_STACK_RESERVE 65
-#define HS_OP_MOVE          66
-#define HS_OP_SWAP          67
-
-#define HS_OP_PREPARE_ARGS  70
-#define HS_OP_SET_ARG       71
-#define HS_OP_CALL          72
-
-#define HS_OA_ZERO   0
-#define HS_OA_RONE   1
-#define HS_OA_RTWO   2
-#define HS_OA_RTHREE 3
-
-static uint8_t IP_MODE[] = {
+  HS_OPCODE_ONE_REG_PARAMS,      /* 240 - HS_OP_INT_INC */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 241 - HS_OP_INT_DEC */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 242 - HS_OP_FLOAT_INC */
+  HS_OPCODE_ONE_REG_PARAMS,      /* 243 - HS_OP_FLOAT_DEC */    
   
-  /* 000 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 001 - HS_OP_EXIT    */ HS_OA_ZERO,
-  /* 002 - HS_OP_NOP */     HS_OA_ZERO,
-  
-  /* 003 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 004 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 005 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 006 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 007 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 008 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 009 - <<UNDEFINED>> */ HS_OA_ZERO,
-  
-  /* 010 - HS_OP_JUMP */    HS_OA_RONE,
-  /* 011 - HS_OP_JUMP_LT */ HS_OA_RTWO,
-  /* 012 - HS_OP_JUMP_GT */ HS_OA_RTWO,
-  /* 013 - HS_OP_JUMP_LE */ HS_OA_RTWO,
-  /* 014 - HS_OP_JUMP_GE */ HS_OA_RTWO,
-  /* 015 - HS_OP_JUMP_EQ */ HS_OA_RTWO,
-  /* 016 - HS_OP_JUMP_NE */ HS_OA_RTWO,
-  /* 017 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 018 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 019 - <<UNDEFINED>> */ HS_OA_ZERO,
-  
-  /* 020 - HS_OP_IADD    */ HS_OA_RTHREE,
-  /* 021 - HS_OP_ISUB    */ HS_OA_RTHREE,
-  /* 022 - HS_OP_IMUL    */ HS_OA_RTHREE,
-  /* 023 - HS_OP_IDIV    */ HS_OA_RTHREE,
-  /* 024 - HS_OP_IMOD    */ HS_OA_RTHREE,
-  /* 025 - HS_OP_IREM    */ HS_OA_RTHREE,
-  /* 026 - HS_OP_IPOW    */ HS_OA_RTHREE,
-  /* 027 - HS_OP_ISHL    */ HS_OA_RTHREE,
-  /* 028 - HS_OP_ISHR    */ HS_OA_RTHREE,
-  /* 029 - HS_OP_IUSHR   */ HS_OA_RTHREE,
-  /* 030 - HS_OP_IAND    */ HS_OA_RTHREE,
-  /* 031 - HS_OP_IOR     */ HS_OA_RTHREE,
-  /* 032 - HS_OP_IXOR    */ HS_OA_RTHREE,
-  /* 033 - HS_OP_INOT    */ HS_OA_RTHREE,
-  /* 034 - HS_OP_ICPL    */ HS_OA_RTHREE,
-  /* 035 - HS_OP_ICMP    */ HS_OA_RTHREE,
-  /* 036 - HS_OP_IINC    */ HS_OA_RONE,
-  /* 037 - HS_OP_IDEC    */ HS_OA_RONE,
-  /* 038 - HS_OP_INEG    */ HS_OA_RTWO,
-  /* 039 - <<UNDEFINED>> */ HS_OA_ZERO,
-  
-  /* 040 - HS_OP_FADD    */ HS_OA_RTHREE,
-  /* 041 - HS_OP_FSUB    */ HS_OA_RTHREE,
-  /* 042 - HS_OP_FMUL    */ HS_OA_RTHREE,
-  /* 043 - HS_OP_FDIV    */ HS_OA_RTHREE,
-  /* 044 - HS_OP_FPOW    */ HS_OA_RTHREE,
-  /* 045 - HS_OP_FNEG    */ HS_OA_RTWO,
-  /* 046 - HS_OP_FCMP    */ HS_OA_RTHREE,
-  /* 047 - HS_OP_FINC    */ HS_OA_RONE,
-  /* 048 - HS_OP_FDEC    */ HS_OA_RONE,
-  /* 049 - HS_OP_SIN     */ HS_OA_ZERO,
-  
-  /* 050 - HS_OP_COS     */ HS_OA_RTWO,
-  /* 051 - HS_OP_TAN     */ HS_OA_RTWO,
-  /* 052 - HS_OP_ASIN    */ HS_OA_RTWO,
-  /* 053 - HS_OP_ACOS    */ HS_OA_RTWO,
-  /* 054 - HS_OP_ATAN    */ HS_OA_RTWO,
-  /* 055 - HS_OP_ATAN2   */ HS_OA_RTHREE,
-  /* 056 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 057 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 058 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 059 - <<UNDEFINED>> */ HS_OA_ZERO, 
-  
-  /* 060 - HS_OP_GET_STACK     */ HS_OA_ZERO,
-  /* 061 - HS_OP_SET_STACK     */ HS_OA_ZERO,
-  /* 062 - HS_OP_GET_ARG       */ HS_OA_ZERO,
-  /* 063 - HS_OP_SET_FIELD     */ HS_OA_ZERO,
-  /* 064 - HS_OP_GET_FIELD     */ HS_OA_ZERO,
-  /* 065 - HS_OP_STACK_RESERVE */ HS_OA_ZERO,
-  /* 066 - HS_OP_MOVE          */ HS_OA_ZERO,
-  /* 067 - HS_OP_SWAP          */ HS_OA_ZERO,
-  /* 068 - <<UNDEFINED>>       */ HS_OA_ZERO,
-  /* 069 - <<UNDEFINED>>       */ HS_OA_ZERO,
-  
-  /* 070 - HS_OP_PREPARE_ARGS  */ HS_OA_ZERO,
-  /* 071 - HS_OP_SET_ARG       */ HS_OA_ZERO,
-  /* 072 - HS_OP_CALL          */ HS_OA_ZERO,
-  /* 073 - <<UNDEFINED>> */       HS_OA_ZERO,
-  /* 074 - <<UNDEFINED>> */       HS_OA_ZERO,
-  /* 075 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 076 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 077 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 078 - <<UNDEFINED>> */ HS_OA_ZERO,
-  /* 079 - <<UNDEFINED>> */ HS_OA_ZERO, 
-  
-  /* 080 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 081 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 082 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 083 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 084 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 085 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 086 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 087 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 088 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 089 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 090 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 091 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 092 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 093 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 094 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 095 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 096 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 097 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 098 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 099 - HS_OP_INVALID */ HS_OA_ZERO, 
-  
-  /* 100 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 101 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 102 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 103 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 104 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 105 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 106 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 107 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 108 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 109 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 110 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 111 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 112 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 113 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 114 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 115 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 116 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 117 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 118 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 119 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 120 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 121 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 122 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 123 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 124 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 125 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 126 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 127 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 128 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 129 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 130 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 131 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 132 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 133 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 134 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 135 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 136 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 137 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 138 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 139 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 140 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 141 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 142 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 143 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 144 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 145 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 146 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 147 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 148 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 149 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 150 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 151 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 152 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 153 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 154 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 155 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 156 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 157 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 158 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 159 - HS_OP_INVALID */ HS_OA_ZERO, 
-  
-  /* 160 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 161 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 162 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 163 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 164 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 165 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 166 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 167 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 168 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 169 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 170 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 171 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 172 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 173 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 174 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 175 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 176 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 177 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 178 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 179 - HS_OP_INVALID */ HS_OA_ZERO, 
-  
-  /* 180 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 181 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 182 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 183 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 184 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 185 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 186 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 187 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 188 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 189 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 190 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 191 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 192 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 193 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 194 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 195 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 196 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 197 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 198 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 199 - HS_OP_INVALID */ HS_OA_ZERO, 
-    
-  /* 200 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 201 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 202 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 203 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 204 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 205 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 206 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 207 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 208 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 209 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 210 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 211 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 212 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 213 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 214 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 215 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 216 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 217 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 218 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 219 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 220 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 221 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 222 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 223 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 224 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 225 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 226 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 227 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 228 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 229 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 230 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 231 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 232 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 233 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 234 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 235 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 236 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 237 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 238 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 239 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 240 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 241 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 242 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 243 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 244 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 245 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 246 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 247 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 248 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 249 - HS_OP_INVALID */ HS_OA_ZERO,
-  
-  /* 250 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 251 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 252 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 253 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 254 - HS_OP_INVALID */ HS_OA_ZERO,
-  /* 255 - HS_OP_INVALID */ HS_OA_ZERO,
+  HS_OPCODE_NO_PARAMS,           /* 244 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 245 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 246 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 247 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 248 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 249 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 250 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 251 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 252 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 253 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 254 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 255 - <<undefined>> */ 
   
 }
 
-static int
-init_stack(hs_code_stack *stack, hs_module *module, size_t entry_point)
-{
-  stack->heap.data = malloc( HS_HEAP_INIT_SIZE * sizeof(hs_object) );
-  if (!(stack->heap.data)) return 1;
-  stack->heap.capa = HS_HEAP_INIT_SIZE;
-  stack->heap.size = 0;
-  stack->instruction = entry_point;
-  stack->run = 1;
-  stack->module = module;
-  return 0;
-}
 
-static void
-end_stack(hs_code_stack *stack)
-{
-  free(stack->heap.data);
-}
-
-static void 
-decode(hs_context *HS, hs_code_stack *stack)
-{
-  if (module->opcode_size < stack->opcode) {
-    stack->code = HS_OP_INVALID;
-    return;
-  } 
-  hs_opcode i = stack->module->opcodes[stack->opcode];
-  stack.code = i >> 24;
-}
-
-int
-hs_run_code(hs_context *HS, hs_module *module, size_t entry_point)
-{
-  hs_code_stack stack;
-  if (init_stack(HS, &stack, module, entry_point)) 
-  {
-    hs_panic( HS_ERROR_STACK_OVERFLOW );
-    return 1;
-  }
-  while (stack.run) 
-  {
-    decode(HS, &stack);
-    switch (stack.code)
-    {
-      default:
-        hs_panic( HS, HS_ERROR_INVALID_OPCODE );
-        break;
-    }
-  }
-  end_stack(&stack);
-  return hs_end_context(HS);
-}
