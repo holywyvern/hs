@@ -152,6 +152,10 @@ enum hs_opcode
   HS_OP_FLOAT_INC                 = 242, /* inc( float : <reg> ) */
   HS_OP_FLOAT_DEC                 = 243, /* dec( float : <reg> ) */  
   
+  HS_OP_DECLARE_FUNCTION          = 250, /* <reg> <- def( <uint16> ) */
+  HS_OP_DECLARE_FUNCTION_INDIRECT = 251, /* <reg> <- def( <reg> ) */
+  HS_OP_END_FUNCTION              = 252, /* end() */
+  
 };
 
 union hs_opcode_params

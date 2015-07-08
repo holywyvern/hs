@@ -306,11 +306,13 @@ const char HS_OPCODE_PARAM_TYPE[] = {
   HS_OPCODE_NO_PARAMS,           /* 247 - <<undefined>> */
   HS_OPCODE_NO_PARAMS,           /* 248 - <<undefined>> */
   HS_OPCODE_NO_PARAMS,           /* 249 - <<undefined>> */
-  HS_OPCODE_NO_PARAMS,           /* 250 - <<undefined>> */
-  HS_OPCODE_NO_PARAMS,           /* 251 - <<undefined>> */
-  HS_OPCODE_NO_PARAMS,           /* 252 - <<undefined>> */
+
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 250 - HS_OP_DECLARE_FUNCTION */
+  HS_OPCODE_TWO_REG_PARAMS,      /* 251 - HS_OP_DECLARE_FUNCTION_INDIRECT */
+  HS_OPCODE_NO_PARAMS,           /* 252 - HS_OP_END_FUNCTION */
+  
   HS_OPCODE_NO_PARAMS,           /* 253 - <<undefined>> */
-  HS_OPCODE_NO_PARAMS,           /* 254 - <<undefined>> */
+  HS_OPCODE_NO_PARAMS,           /* 254 - <<undefined>> */   
   HS_OPCODE_NO_PARAMS,           /* 255 - <<undefined>> */ 
   
 }
