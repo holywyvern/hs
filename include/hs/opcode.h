@@ -8,7 +8,7 @@ enum hs_opcode
 {
   HS_OP_NOP                       =   1, /* wait() */
   HS_OP_BREAKPOINT                =   2, /* breakpoint() */
-  HS_OP_HALT                      =   3, /* halt( <reg> ) */
+  HS_OP_HALT                      =   3, /* halt() */
  
   HS_OP_LOAD_NULL                 =  10, /* <reg> <- null */
   HS_OP_LOAD_FALSE                =  11, /* <reg> <- false */
@@ -21,7 +21,8 @@ enum hs_opcode
   HS_OP_LOAD_FIELD_INDIRECT       =  18, /* <reg> <- <reg> [ <reg> ] */
   HS_OP_LOAD_LOCAL_CONST          =  19, /* <reg> <- module [ <uint16> ] */
   HS_OP_LOAD_LOCAL_CONST_INDIRECT =  20, /* <reg> <- module [ <reg> ] */
- 
+  HS_OP_LOAD_INT_CONST            =  21, /* <reg> <- <uint16> */
+  
   HS_OP_STORE_LOCAL               =  30, /* context [ <uint16> ] <- <reg> */
   HS_OP_STORE_LOCAL_INDIRECT      =  31, /* context [ <reg> ] <- <reg> */
   HS_OP_STORE_FIELD               =  32, /* this [ <uint16> ] <- <reg> */
@@ -154,9 +155,44 @@ enum hs_opcode
   
   HS_OP_DECLARE_FUNCTION          = 250, /* <reg> <- def( <uint16> ) */
   HS_OP_DECLARE_FUNCTION_INDIRECT = 251, /* <reg> <- def( <reg> ) */
-  HS_OP_END_FUNCTION              = 252, /* end() */
+  
+  HS_OP_END_BYTECODE              = 255, /* (no opcode, auto appended) */
   
 };
+
+/* This file:
+ *
+ *  1 | x : 2
+ *  2 | ++x
+ *  3 | y : () { ++x }
+ *
+ * Transforms into this opcodes (no optimizations):
+ *
+ *  1 | r0 <- #2
+ *  2 | context [ @x ] <- r0
+ *  3 | r0 <- context [ @x ]
+ *  4 | inc( int : r0 )
+ *  5 | context [ @x ] <- r0
+ *  6 | r0 <- def( @9 )
+ *  7 | context [ @y ] <- r0
+ *  8 | halt()
+ *  9 | r0 <- context[ @x ]
+ * 10 | inc( int : r0 )
+ * 11 | context[ @x ] <- r0
+ * 12 | return( null )
+ *
+ * An optimized code may be:
+ *
+ *  1 | r0 <- #3
+ *  2 | context [ @x ] <- r0
+ *  3 | r0 <- def( @7 )
+ *  4 | context [ @y ] <- r0
+ *  5 | halt()
+ *  6 | r0 <- context[ @x ]
+ *  7 | inc( int : r0 ) 
+ *  8 | context[ @x ] <- r0
+ *  9 | return( null )
+ */
 
 union hs_opcode_params
 {

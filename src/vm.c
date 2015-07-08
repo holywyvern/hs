@@ -25,7 +25,7 @@ const char HS_OPCODE_PARAM_TYPE[] = {
   
   HS_OPCODE_NO_PARAMS,           /* 001 - HS_OP_NOP */
   HS_OPCODE_NO_PARAMS,           /* 002 - HS_OP_BREAKPOINT */
-  HS_OPCODE_ONE_REG_PARAMS,      /* 003 - HS_OP_HALT  */
+  HS_OPCODE_NO_PARAMS,           /* 003 - HS_OP_HALT  */
  
   HS_OPCODE_NO_PARAMS,           /* 004 - <<undefined>> */
   HS_OPCODE_NO_PARAMS,           /* 005 - <<undefined>> */
@@ -45,8 +45,9 @@ const char HS_OPCODE_PARAM_TYPE[] = {
   HS_OPCODE_THREE_REG_PARAMS,    /* 018 - HS_OP_LOAD_FIELD_INDIRECT */
   HS_OPCODE_UINT_AND_REG_PARAMS, /* 019 - HS_OP_LOAD_LOCAL_CONST */
   HS_OPCODE_TWO_REG_PARAMS,      /* 020 - HS_OP_LOAD_LOCAL_CONST_INDIRECT */
- 
-  HS_OPCODE_NO_PARAMS,           /* 021 - <<undefined>> */
+  HS_OPCODE_UINT_AND_REG_PARAMS, /* 021 - HS_OP_LOAD_INT_CONST */
+  
+  
   HS_OPCODE_NO_PARAMS,           /* 022 - <<undefined>> */
   HS_OPCODE_NO_PARAMS,           /* 023 - <<undefined>> */
   HS_OPCODE_NO_PARAMS,           /* 024 - <<undefined>> */
@@ -309,11 +310,12 @@ const char HS_OPCODE_PARAM_TYPE[] = {
 
   HS_OPCODE_UINT_AND_REG_PARAMS, /* 250 - HS_OP_DECLARE_FUNCTION */
   HS_OPCODE_TWO_REG_PARAMS,      /* 251 - HS_OP_DECLARE_FUNCTION_INDIRECT */
-  HS_OPCODE_NO_PARAMS,           /* 252 - HS_OP_END_FUNCTION */
   
+  HS_OPCODE_NO_PARAMS,           /* 252 - <<undefined>> */
   HS_OPCODE_NO_PARAMS,           /* 253 - <<undefined>> */
   HS_OPCODE_NO_PARAMS,           /* 254 - <<undefined>> */   
-  HS_OPCODE_NO_PARAMS,           /* 255 - <<undefined>> */ 
+  
+  HS_OPCODE_NO_PARAMS,           /* 255 - HS_OP_END_BYTECODE */ 
   
 }
 
