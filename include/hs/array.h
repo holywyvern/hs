@@ -324,12 +324,38 @@
   name##_select( name *src, name *dst, void *ctx,                              \
                  int (*fn)(void *, size_t, type) )                             \
   {                                                                            \
+    size_t i;                                                                  \
+    if ( name##_init( dst ) ) return 1;                                        \
+    for ( i = 0; i < src->size; ++i )                                          \
+    {                                                                          \
+      if ( fn( ctx, i, src->data[i] ) )                                        \
+      {                                                                        \
+        if ( name##_push( dst, src->data[i] ) )                                \
+        {                                                                      \
+          name##_end( dst );                                                   \
+          return 1;                                                            \
+        }                                                                      \
+      }                                                                        \
+    }                                                                          \
+    return 0;                                                                  \
   }                                                                            \
                                                                                \
   int                                                                          \
   name##_map( name *src, name *dst, void *ctx,                                 \
               type (*fn)(void *, size_t, type) )                               \
   {                                                                            \
-  }                                                                            \
+    size_t i;                                                                  \
+    if ( name##_init( dst ) ) return 1;                                        \
+    for ( i = 0; i < src->size; ++i )                                          \
+    {                                                                          \
+      type tmp = fn( ctx, i, src->data[i] );                                   \
+      if ( name##_push( dst, tmp ) )                                           \
+      {                                                                        \
+        name##_end( dst );                                                     \
+        return 1;                                                              \
+      }                                                                        \
+    }                                                                          \
+    return 0;                                                                  \
+  }
   
 #endif /* HS_ARRAY_H */

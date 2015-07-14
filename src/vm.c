@@ -1,3 +1,5 @@
+#include <hs/opcode.h>
+
 #define HS_MAX_REGISTERS  8
 #define HS_MAX_ARGS       3
 #define HS_HEAP_INIT_SIZE 4
@@ -317,6 +319,5 @@ const char HS_OPCODE_PARAM_TYPE[] = {
   
   HS_OPCODE_NO_PARAMS,           /* 255 - HS_OP_END_BYTECODE */ 
   
-}
-
+};
 
