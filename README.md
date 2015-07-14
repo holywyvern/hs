@@ -6,6 +6,12 @@ Humming script contains a collection of modular pieces in c, to create an interp
 ### hs/array
 Macros to implement dynamic arrays quickly.
 
+### hs/bigdecimal
+Contains an arbitrary precision library for decimal (flating point) types
+
+### hs/bigint
+Contains an arbitrary precision library for integer types
+
 ### hs/file
 A file manipulation library with UTF-8 support for every platform.
 
