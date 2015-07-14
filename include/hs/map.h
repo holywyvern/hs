@@ -3,6 +3,20 @@
 
 #include <hs/array.h>
  
+/** @defgroup Map functions
+ *
+ *  This set generates the basic functions to use a map.
+ *  Arguments:  
+ *    - K : the key type of the map 
+ *    - V : the value type of the map
+ *    - N :  the name the map will receibe
+ *    
+ *  this will result in three types, a pair type (N_pair) a key comparator
+ *  and the map node.
+ *
+ *  @{
+ */ 
+ 
 #define HS_DEFINE_MAP(K, V, N)                                                 \
                                                                                \
   typedef struct N##_pair { K key; V val; struct N##_pair *link[2]; } N##_pair;\
@@ -26,6 +40,8 @@
                                                                                \
   int                                                                          \
   N##_set( N *map, K key, V value );
+    
+/** @} */    
     
 #define HS_DEFINE_MAP_COLLECTORS(K, V, N)                                      \
                                                                                \
