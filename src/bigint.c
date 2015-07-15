@@ -146,6 +146,40 @@ hs_bigint_init(hs_bigint *bi, size_t capa)
   return 0;
 }
 
+int
+hs_bigint_from_i32(hs_bigint *bi, uint32_t value)
+{
+  if (hs_bigint_init(bi, 1)) return 1;
+  bi->data[0] = value;
+  return 0;
+}
+
+int
+hs_bigint_from_i32(hs_bigint *bi, int32_t value)
+{
+  if (hs_bigint_init(bi, 1)) return 1;
+  bi->data[0] = (uint32_t)(value & (uint32_t)INT32_MAX);
+  bi->negative = value < 0; 
+  return 0;
+}
+
+int
+hs_bigint_from_u64(hs_bigint *bi, uint64_t value)
+{
+  if (hs_bigint_init(bi, 2)) return 1;
+  bi->data[0] = (uint32_t)(value & (uint64_t)UINT32_MAX);
+  bi->data[1] = (uint32_t)(value >> UINT32_MAX);
+  return 0;
+}
+
+int
+hs_bigint_from_i64(hs_bigint *bi, int64_t value)
+{
+  if (hs_bigint_from_u64(bi, (value & (uint64_t)INT64_MAX) )) return 1;
+  bi->negative = value < 0;
+  return 0;
+}
+
 void
 hs_bigint_end(hs_bigint *bi)
 {
@@ -502,5 +536,15 @@ hs_bigint_self_abs(hs_bigint *bi)
 int
 hs_bigint_self_cpl(hs_bigint *bi)
 {
-  
+  size_t i;
+  for (size_t i = 0; i < bi->size; ++i) {
+    bi->data[i] = ~bi->data[i];
+  }
+  if (inc_bits(bi)) return 1;
+  if (bi->data[bi->size - 1] == 1) {
+    --(bi->size);
+    bi->data[bi->size] = 0;
+    bi->negative = !bi->negative;
+  }
+  return 0;
 }

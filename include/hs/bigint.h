@@ -16,6 +16,20 @@ typedef struct
 int 
 hs_bigint_init(hs_bigint *bi, size_t capa);
 
+
+int
+hs_bigint_from_i32(hs_bigint *bi, uint32_t value);
+
+int
+hs_bigint_from_i32(hs_bigint *bi, int32_t value);
+
+int
+hs_bigint_from_u64(hs_bigint *bi, uint64_t value);
+
+int
+hs_bigint_from_i64(hs_bigint *bi, int64_t value);
+
+
 void
 hs_bigint_end(hs_bigint *bi);
 
