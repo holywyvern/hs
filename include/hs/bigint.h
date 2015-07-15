@@ -4,17 +4,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-/* We use radix 2^32 digits. */
-#define RADIXBITS 32
-typedef uint32_t digit_t;
-typedef uint64_t ddigit_t;
 
 typedef struct 
 {
   uint32_t *data;
   size_t    size;
   size_t    capa;
-  int       neg;
+  int       negative;
 } hs_bigint;
 
 int 
@@ -81,43 +77,43 @@ int
 hs_bigint_dec(hs_bigint *bi);
 
 int
-hs_bigint_self_add(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_add(hs_bigint *a, hs_bigint *b);
 
 int
-hs_bigint_self_sub(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_sub(hs_bigint *a, hs_bigint *b);
 
 int
-hs_bigint_self_mul(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_mul(hs_bigint *a, hs_bigint *b);
 
 int
-hs_bigint_self_div(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_div(hs_bigint *a, hs_bigint *b);
 
 int
-hs_bigint_self_shl(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_shl(hs_bigint *a, hs_bigint *b);
 
 int
-hs_bigint_self_shr(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_shr(hs_bigint *a, hs_bigint *b);
 
 int
-hs_bigint_self_and(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_and(hs_bigint *a, hs_bigint *b);
 
 int
-hs_bigint_self_rem(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_rem(hs_bigint *a, hs_bigint *b);
 
 int
-hs_bigint_self_mod(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_mod(hs_bigint *a, hs_bigint *b);
 
 int
-hs_bigint_self_or(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_or(hs_bigint *a, hs_bigint *b);
 
 int
-hs_bigint_self_xor(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_self_xor(hs_bigint *a, hs_bigint *b);
 
 int
 hs_bigint_self_neg(hs_bigint *bi);
 
 int
-hs_bigint_abs(hs_bigint *bi);
+hs_bigint_self_abs(hs_bigint *bi);
 
 int
 hs_bigint_self_cpl(hs_bigint *bi);
