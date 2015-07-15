@@ -26,6 +26,16 @@ inc_bits(hs_bigint *bi)
 }
 
 static int
+need_sub_inversion(hs_bigint *a, hs_bigint *b)
+{
+  if ( a->size > b->size ) return 0;
+  if ( a->size < b->size ) return 1;
+  size_t i = a->size - 1;
+  if ( a->data[i] < b->data[i] ) return 1;
+  return 0;
+}
+
+static int
 dec_bits(hs_bigint *bi)
 {
   size_t i = 0;
@@ -41,21 +51,12 @@ dec_bits(hs_bigint *bi)
   return 0;
 }
 
-/* preventing overflow at all costs */
-/* Given a value X + Y >= Z, I can get the part below z as:
- * Z - (Z - X) - (Z - Y) 
- * This formula is the result of simplification,
- * Z = UINT32_MAX + 1 (which I can't use this way, and I must avoid overflows) 
- */  
-#define OVERFLOW_ROLLOUT(a, b)                                                 \
-  ( UINT32_MAX - ( ( UINT32_MAX - (a) ) + 1 + ( UINT32_MAX - (b) ) ) )
-
   
 int
 add_bits(hs_bigint *a, hs_bigint *b)
 {
   uint32_t carry = 0;
-  uint32_t tmp;
+  uint64_t tmp;
   uint32_t t;
   size_t size = a->size > b->size ? b->size : a->size;
   if (a->size < b->size)
@@ -69,41 +70,48 @@ add_bits(hs_bigint *a, hs_bigint *b)
     a->size = b->size;
   }    
   for (size_t i = 0; i < size; ++i) {
-    if (UINT32_MAX - carry >= a->data[i]) {
-      a->data[i] += carry;
-      carry = 0;
-    } else {
-      a->data[i] = carry - 1;
-      carry = 1;
-    }
-    tmp = b->data[i];
-    if (UINT32_MAX - tmp >= a->data[i]) {
-      a->data[i] += tmp;
-    } else {
-      carry += 1;
-      a->data[i] = OVERFLOW_ROLLOUT(a->data[i], tmp);
-    }
+    tmp = (uint64_t)a->data[i] + (uint64_t)b->data[i];
+    carry = (uint32_t)(tmp >> 32);
+    a->data[i] = (uint32_t)( tmp && (uint64_t)UINT32_MAX );
   }
   while (carry) {
     if (size < a->size) {
-      if ( UINT32_MAX - carry >= a->data[size])
-      {
-        a->data[size] += carry;
-        carry = 0;
-      } else {
-        tmp = a->data[size];
-        a->data[size] = OVERFLOW_ROLLOUT(carry, tmp);
-        carry = 1;
-      }
+      tmp = (uint64_t)a->data[i] + (uint64_t)b->data[i];
+      carry = (uint32_t)(tmp >> 32);
+      a->data[i] = (uint32_t)( tmp && (uint64_t)UINT32_MAX );
       ++size;
+    } else {
+      if ( check_size(a, 1) ) return 1;
+      ++(a->size);
     }
   }
+  return 0;
 }
 
 int
 sub_bits(hs_bigint *a, hs_bigint *b)
 {
-  
+  uint64_t tmp;
+  uint32_t carry;
+  size_t i, j, size;
+  size = b->size;
+  carry = 0;
+  for (i = 0; i < size; ++i)
+  {
+    if ( a->data[i] < b->data[i] ) {
+      for ( j = i + 1; j < a->size; ++j ) {
+        if (a->data[j] != 0) {
+          --(a->data[j]);
+          j = a->size - 1;
+        } else
+          a->data[j] = UINT32_MAX;
+      }
+      tmp = (uint64_t)a->data[i] + (uint64_t)UINT32_MAX - (uint64_t)b->data[i];
+      a->data[i] = (uint32_t)tmp;
+    } else 
+      a->data[i] -= b->data[i];
+    
+  }
 }
 
 static int
@@ -158,8 +166,10 @@ hs_bigint_copy(hs_bigint *src, hs_bigint *dst)
 int
 hs_bigint_compare(hs_bigint *a, hs_bigint *b)
 {
-  if (a->neg != b->neg) {
-    if (a->neg) {
+  size_t j, k;
+  if (is_zero(a) && is_zero(b)) return 0;
+  if (a->negative != b->negative) {
+    if (a->negative) {
       return -1;
     }
     return 1;
@@ -167,8 +177,8 @@ hs_bigint_compare(hs_bigint *a, hs_bigint *b)
   if (a->negative) {
     if (a->size > b->size) return -1;
     if (a->size < b->size) return  1;
-    for (size_t j = 0; j < a->size; ++j) {
-      size_t k = a->size - j - 1;
+    for (j = 0; j < a->size; ++j) {
+      k = a->size - j - 1;
       if (a->data[k] > b->data[k]) return -1;
       if (a->data[k] < b->data[k]) return  1;
     } 
@@ -176,8 +186,8 @@ hs_bigint_compare(hs_bigint *a, hs_bigint *b)
   } 
   if (a->size > b->size) return  1;
   if (a->size < b->size) return -1;
-  for (size_t j = 0; j < a->size; ++j) {
-    size_t k = a->size - j - 1;
+  for (j = 0; j < a->size; ++j) {
+    k = a->size - j - 1;
     if (a->data[k] > b->data[k]) return  1;
     if (a->data[k] < b->data[k]) return -1;
   } 
@@ -187,7 +197,8 @@ hs_bigint_compare(hs_bigint *a, hs_bigint *b)
 int
 hs_bigint_equals(hs_bigint *a, hs_bigint *b)
 {
-  if (a->neg != b->neg) return 0;
+  if (is_zero(a) && is_zero(b)) return 1;
+  if (a->negative != b->negative) return 0;
   if (a->size != b->size) return 0;
   for (size_t i = 0; i < a->size; ++i) {
     if (a->data[i] != b->data[i]) return 0;
@@ -370,26 +381,34 @@ int
 hs_bigint_self_add(hs_bigint *a, hs_bigint *b)
 {
   if (a->negative == b->negative) return add_bits(a, b);
+  if  (need_sub_inversion(a, b)) {
+    a->negative = !a->negative;
+    return sub_bits(b, a);
+  }
   return sub_bits(a, b);
 }
 
 int
 hs_bigint_self_sub(hs_bigint *a, hs_bigint *b)
 {
-  if (a->negative == b->negative) return sub_bits(a, b);
-  return add_bits(a, b);
+  if (a->negative != b->negative) return add_bits(a, b);
+  if  (need_sub_inversion(a, b)) {
+    a->negative = !a->negative;
+    return sub_bits(b, a);
+  }
+  return sub_bits(a, b);  
 }
 
 int
 hs_bigint_self_mul(hs_bigint *a, hs_bigint *b)
 {
-  
+  a->negative = a->negative ^ b->negative;
 }
 
 int
 hs_bigint_self_div(hs_bigint *a, hs_bigint *b)
 {
-  
+  a->negative = a->negative ^ b->negative;
 }
 
 int
