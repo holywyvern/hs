@@ -61,6 +61,9 @@ int
 hs_bigint_shr(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
 
 int
+hs_bigint_ushr(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+
+int
 hs_bigint_and(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
 
 int
@@ -107,6 +110,9 @@ hs_bigint_self_shl(hs_bigint *a, hs_bigint *b);
 
 int
 hs_bigint_self_shr(hs_bigint *a, hs_bigint *b);
+
+int
+hs_bigint_self_ushr(hs_bigint *a, hs_bigint *b);
 
 int
 hs_bigint_self_and(hs_bigint *a, hs_bigint *b);

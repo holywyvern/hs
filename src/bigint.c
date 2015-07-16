@@ -52,7 +52,7 @@ dec_bits(hs_bigint *bi)
 }
 
   
-int
+static int
 add_bits(hs_bigint *a, hs_bigint *b)
 {
   uint32_t carry = 0;
@@ -88,7 +88,7 @@ add_bits(hs_bigint *a, hs_bigint *b)
   return 0;
 }
 
-int
+static int
 sub_bits(hs_bigint *a, hs_bigint *b)
 {
   uint64_t tmp;
@@ -112,6 +112,36 @@ sub_bits(hs_bigint *a, hs_bigint *b)
       a->data[i] -= b->data[i];
     
   }
+}
+
+static int
+shift_right(hs_bigint *a, hs_bigint *b)
+{
+  int carry;
+  int t;  
+  if (b->negative || is_zero(b)) return 1;
+  hs_bigint bi;
+  if ( hs_bigint_from_i32(&bi, 0) ) return 1;
+  while ( !hs_bigint_equals(&bi, b) )
+  {
+    carry = 0;
+    for (size_t i = 0; i < a->size; ++i) {
+      t = a->data[i] & 1;
+      a->data[i] = a->data[i] >> 1;
+      if (carry)
+        a->data[i] |= 0x80000000;
+      carry = t;
+    }
+    /* Passing down the sign, */
+    if (a->negative) a->data[a->size - 1] |= 0x80000000;
+    if ( (a->data[a->size - 1] == 0) && a->size > 1) --(a->size);
+    if ( hs_bigint_inc(&bi) ) {
+      hs_bigint_end(&bi);
+      return 1;
+    }
+  }
+  hs_bigint_end(&bi);
+  return 0;  
 }
 
 static int
@@ -176,7 +206,7 @@ int
 hs_bigint_from_i64(hs_bigint *bi, int64_t value)
 {
   if (hs_bigint_from_u64(bi, (value & (uint64_t)INT64_MAX) )) return 1;
-  bi->negative = value < 0;
+  bi->negative = value < 0; 
   return 0;
 }
 
@@ -300,6 +330,17 @@ hs_bigint_shr(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_shr(dst, b)) {
+    hs_bigint_end(dst);
+    return 1;
+  };
+  return 0;
+}
+
+int
+hs_bigint_ushr(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+{
+  if (hs_bigint_copy(a, dst)) return 1;
+  if (hs_bigint_self_ushr(dst, b)) {
     hs_bigint_end(dst);
     return 1;
   };
@@ -437,24 +478,62 @@ int
 hs_bigint_self_mul(hs_bigint *a, hs_bigint *b)
 {
   a->negative = a->negative ^ b->negative;
+  /* TODO: implement */
+  return 1;
 }
 
 int
 hs_bigint_self_div(hs_bigint *a, hs_bigint *b)
 {
   a->negative = a->negative ^ b->negative;
+  /* TODO: implement */
+  return 1;  
 }
 
 int
 hs_bigint_self_shl(hs_bigint *a, hs_bigint *b)
 {
-  
+  int carry, t;
+  if (b->negative || is_zero(b)) return 1;
+  hs_bigint bi;
+  if ( hs_bigint_from_i32(&bi, 0) ) return 1;
+  while ( !hs_bigint_equals(&bi, b) )
+  {
+    carry = 0;
+    for (size_t i = 0; i < a->size; ++i) {
+      t = a->data[i] & 0x80000000;
+      a->data[i] = a->data[i] << 1;
+      if (carry)
+        a->data[i] |= 1;
+      carry = t;
+    }
+    /* Passing down the sign, if there was some carry after the shift */
+    a->negative = carry ? 1 : 0;
+    if ( (a->data[a->size - 1] == 0) && a->size > 1) --(a->size);
+    if ( hs_bigint_inc(&bi) ) {
+      hs_bigint_end(&bi);
+      return 1;
+    }
+  }
+  hs_bigint_end(&bi);
+  return 0;  
 }
 
 int
 hs_bigint_self_shr(hs_bigint *a, hs_bigint *b)
 {
+  if (shift_right(a, b)) return 1;
+  /* In signed (logical) right shift, the sign is preserved */
+  return 0;
+}
 
+int
+hs_bigint_self_ushr(hs_bigint *a, hs_bigint *b)
+{
+  if (shift_right(a, b)) return 1;
+  /* In unsigned (arithmetic) right shift, the sign disappears */
+  a->negative = 0;  
+  return 0;
 }
 
 int
@@ -472,13 +551,15 @@ hs_bigint_self_and(hs_bigint *a, hs_bigint *b)
 int
 hs_bigint_self_rem(hs_bigint *a, hs_bigint *b)
 {
-
+  /* TODO: implement */
+  return 1;
 }
 
 int
 hs_bigint_self_mod(hs_bigint *a, hs_bigint *b)
 {
-  
+  /* TODO: implement */
+  return 1;
 }
 
 int
