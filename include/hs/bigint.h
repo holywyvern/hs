@@ -138,4 +138,7 @@ hs_bigint_self_abs(hs_bigint *bi);
 int
 hs_bigint_self_cpl(hs_bigint *bi);
 
+int
+hs_bigint_divrem(hs_bigint *a, hs_bigint *b, hs_bigint *res, hs_bigint *rem );
+
 #endif /* HS_BIGINT_H */

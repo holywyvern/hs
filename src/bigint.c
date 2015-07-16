@@ -144,6 +144,55 @@ shift_right(hs_bigint *a, hs_bigint *b)
   return 0;  
 }
 
+/**
+ * I don't really know how to do a faster division algorithm, so I take
+ * the approach of how the division is defined, by subtracting "b" to "a" until 
+ * "a" is less than "b", then return the number of times "b" was 
+ * subtracted from "a".
+ * The advantage of this is that the division and remainder functions are
+ * basically the same. 
+ */
+static int
+divrem(hs_bigint *a, hs_bigint *b, hs_bigint *accum, hs_bigint *rem)
+{
+  hs_bigint abs_b;
+  int accum_negative = a->negative ^ b->negative;
+  int rem_negative   = a->negative;
+  if (is_zero(b)) return 1;
+  if (is_zero(a)) {
+    if (hs_bigint_from_u32(accum, 0)) return 1;
+    if (hs_bigint_from_u32(rem, 0)) { hs_bigint_end(accum); return 1; }
+    return 0;
+  };
+  if (hs_bigint_from_i32(accum, 0)) return 1;
+  if (hs_bigint_copy(b, abs_b)) { hs_bigint_end(&accum); return 1; }
+  a->negative = abs_b->negative = 0;
+  if (hs_bigint_copy(a, rem)) { 
+    hs_bigint_end(accum); 
+    hs_bigint_end(&abs_b); 
+    return 1; 
+  }
+  while ( hs_bigint_compare(rem, abs_b) >= 0 )
+  {
+    if (sub_bits(rem, b)) {  
+      hs_bigint_end(accum); 
+      hs_bigint_end(rem);
+      hs_bigint_end(&abs_b);
+      return 1;
+    };
+    if (hs_bigint_inc(accum)) {
+      hs_bigint_end(accum);
+      hs_bigint_end(rem);
+      hs_bigint_end(&abs_b);
+      return 1;
+    }
+  }
+  hs_bigint_end(&abs_b);
+  accum->negative = accum_negative;
+  rem->negative = rem_negative;
+  return 0;
+} 
+
 static int
 is_zero(hs_bigint *bi)
 {
@@ -474,29 +523,81 @@ hs_bigint_self_sub(hs_bigint *a, hs_bigint *b)
   return sub_bits(a, b);  
 }
 
+/**
+ * I don't really know how to do a faster multiplication algorithm, so I take
+ * the approach of how the multiplication is defined, by adding "a" a number of 
+ * "b" times. 
+ * Also, the rule of symbols ( symbol(a) ^ symbol(b) )is applied apart for the 
+ * rest of algorithm.
+ */
 int
 hs_bigint_self_mul(hs_bigint *a, hs_bigint *b)
 {
-  a->negative = a->negative ^ b->negative;
-  /* TODO: implement */
-  return 1;
+  hs_bigint count, accum, abs_b;
+  int negative = a->negative ^ b->negative;
+  if (is_zero(a)) return 0;
+  if (is_zero(b)) { a->size = 1; a->data[0] = 0; a->negative = negative; return 0; }
+  if (hs_bigint_from_u32(&count, 0)) return 1;
+  if (hs_bigint_from_u32(&accum, 0)) { hs_bigint_end(&count); return 1; }
+  if ( hs_bigint_copy(b, &abs_b) ) {
+    hs_bigint_end(&count);
+    hs_bigint_end(&accum);
+    return 1;
+  };
+  abs_b->negative = 0;
+  while (!hs_bigint_equals(&count, abs_b))
+  {
+    if (add_bits(&accum, a)) {  
+      hs_bigint_end(&count); 
+      hs_bigint_end(&accum);
+      hs_bigint_end(&abs_b); 
+      return 1;
+    };
+    if (hs_bigint_inc(&count)) {
+      hs_bigint_end(&count);
+      hs_bigint_end(&accum);
+      hs_bigint_end(&abs_b); 
+      return 1;
+    }
+  }
+  hs_bigint_end(&count);
+  hs_bigint_end(&a);
+  hs_bigint_end(&abs_b); 
+  a->data = accum->data;
+  a->size = accum->size;
+  a->negative = negative;
+  return 0;
 }
 
+
+
+
+ 
 int
 hs_bigint_self_div(hs_bigint *a, hs_bigint *b)
 {
-  a->negative = a->negative ^ b->negative;
-  /* TODO: implement */
-  return 1;  
+  hs_bigint accum, rem;
+  if (divrem(a, b, &accum, &rem) return 1;
+  hs_bigint_end(a);
+  hs_bigint_end(&rem);
+  a->size = accum->size;
+  a->data = accum->data;
+  a->negative = acumm->negative;
+  return 0;
 }
 
+/**
+ * Shifting left is multiplying by 2 n times,
+ * so X << Y is the same as doing X * (2 ^ Y) in this library, the sign is 
+ * always preserved to ensure this.
+ */
 int
 hs_bigint_self_shl(hs_bigint *a, hs_bigint *b)
 {
   int carry, t;
   if (b->negative || is_zero(b)) return 1;
   hs_bigint bi;
-  if ( hs_bigint_from_i32(&bi, 0) ) return 1;
+  if ( hs_bigint_from_u32(&bi, 0) ) return 1;
   while ( !hs_bigint_equals(&bi, b) )
   {
     carry = 0;
@@ -507,8 +608,6 @@ hs_bigint_self_shl(hs_bigint *a, hs_bigint *b)
         a->data[i] |= 1;
       carry = t;
     }
-    /* Passing down the sign, if there was some carry after the shift */
-    a->negative = carry ? 1 : 0;
     if ( (a->data[a->size - 1] == 0) && a->size > 1) --(a->size);
     if ( hs_bigint_inc(&bi) ) {
       hs_bigint_end(&bi);
@@ -551,8 +650,14 @@ hs_bigint_self_and(hs_bigint *a, hs_bigint *b)
 int
 hs_bigint_self_rem(hs_bigint *a, hs_bigint *b)
 {
-  /* TODO: implement */
-  return 1;
+  hs_bigint accum, rem;
+  if (divrem(a, b, &accum, &rem) return 1;
+  hs_bigint_end(a);
+  hs_bigint_end(&accum);
+  a->size = rem->size;
+  a->data = rem->data;
+  a->negative = rem->negative;
+  return 0;
 }
 
 int
@@ -628,4 +733,10 @@ hs_bigint_self_cpl(hs_bigint *bi)
     bi->negative = !bi->negative;
   }
   return 0;
+}
+
+int
+hs_bigint_divrem(hs_bigint *a, hs_bigint *b, hs_bigint *res, hs_bigint *rem )
+{
+  return divrem(a, b, res, rem);
 }
