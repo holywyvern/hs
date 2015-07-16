@@ -1,5 +1,5 @@
 # Humming Script
-Humming script contains a collection of modular pieces in c, to create an interpeted language
+Humming script contains a collection of modular pieces in c, to create an interpreted language
 
 ## Files included
 
@@ -7,7 +7,7 @@ Humming script contains a collection of modular pieces in c, to create an interp
 Macros to implement dynamic arrays quickly.
 
 ### hs/bigdecimal
-Contains an arbitrary precision library for decimal (flating point) types
+Contains an arbitrary precision library for decimal (floating point) types
 
 ### hs/bigint
 Contains an arbitrary precision library for integer types
