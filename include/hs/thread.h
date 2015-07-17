@@ -31,13 +31,21 @@ typedef pthread_mutex_t hs_mutex;
 typedef struct 
 { 
 #ifdef _WIN32
+  /** 
+   * On windows, we may prefer a mutex for control, also almost everything
+   * is a HANDLE
+   */
   HANDLE handle; 
   HANDLE mutex; 
 #else
+  /** On POSIX-like system, its a lot easier  */
   pthread_t handle; 
 #endif  
+  /** A context used to pass data */
   void *ctx; 
+  /** The result of the function as a promise */
   int r; 
+  /** The function to call when the thread starts */
   hs_thread_func fn; 
 } hs_thread;
 
