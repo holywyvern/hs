@@ -18,11 +18,17 @@ A file manipulation library with UTF-8 support for every platform.
 ### hs/gc (TODO)
 Contains a generic garbage collector.
 
+### hs/list
+Contains an implementation of a double linked list
+
 ### hs/map
 Macros to help the creation of maps (dictionaries of key-value pairs)
 
 ### hs/opcode
 Contains the list of opcodes used by the machine
+
+### hs/string
+Contains implementations for ASCII/UTF-8 encoded string manipulations
 
 ### hs/thread
 Contains a simple thread lock/unlock cross platform API.
@@ -40,6 +46,7 @@ Contains the virtual machine for the language
   * Implement dynamic lists
   * Implement dynamic sets
   * Implement dynamic maps
+  * Implement strings
   * Implement lexer
   * Implement parser
   * Implement compiler
