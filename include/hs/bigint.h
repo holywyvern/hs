@@ -37,7 +37,7 @@ typedef struct
  * @return 0 on success, a non zero value on failure.
  */
 int 
-hs_bigint_init(hs_bigint *bi, size_t capa);
+hs_bigint_init(hs_bigint *bi, const size_t capa);
 
 /**
  * @brief starts and integer, from an uint32.
@@ -47,7 +47,7 @@ hs_bigint_init(hs_bigint *bi, size_t capa);
  * @return 0 on success, a non zero value on failure.
  */
 int
-hs_bigint_from_i32(hs_bigint *bi, uint32_t value);
+hs_bigint_from_i32(hs_bigint *bi, const uint32_t value);
 
 /**
  * @brief starts and integer, from an int32.
@@ -57,7 +57,7 @@ hs_bigint_from_i32(hs_bigint *bi, uint32_t value);
  * @return 0 on success, a non zero value on failure.
  */
 int
-hs_bigint_from_i32(hs_bigint *bi, int32_t value);
+hs_bigint_from_i32(hs_bigint *bi, const int32_t value);
 
 /**
  * @brief starts and integer, from an uint64.
@@ -67,7 +67,7 @@ hs_bigint_from_i32(hs_bigint *bi, int32_t value);
  * @return 0 on success, a non zero value on failure.
  */
 int
-hs_bigint_from_u64(hs_bigint *bi, uint64_t value);
+hs_bigint_from_u64(hs_bigint *bi, const uint64_t value);
 
 /**
  * @brief starts and integer, from an int64.
@@ -77,7 +77,7 @@ hs_bigint_from_u64(hs_bigint *bi, uint64_t value);
  * @return 0 on success, a non zero value on failure.
  */
 int
-hs_bigint_from_i64(hs_bigint *bi, int64_t value);
+hs_bigint_from_i64(hs_bigint *bi, const int64_t value);
 
 /**
  * @brief copys a bigint into another bigint.
@@ -87,7 +87,7 @@ hs_bigint_from_i64(hs_bigint *bi, int64_t value);
  * @return 0 on success, a non zero value on failure.
  */
 int 
-hs_bigint_copy(hs_bigint *src, hs_bigint *dst);
+hs_bigint_copy(const hs_bigint *src, hs_bigint *dst);
 
 /**
  * @brief release the resources used by the bigint.
@@ -119,7 +119,7 @@ hs_bigint_end(hs_bigint *bi);
  * @return a value in  [-1, 0, 1]
  */
 int
-hs_bigint_compare(hs_bigint *a, hs_bigint *b);
+hs_bigint_compare(const hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief compares the value of two bigints.
@@ -131,7 +131,7 @@ hs_bigint_compare(hs_bigint *a, hs_bigint *b);
  *
  */
 int
-hs_bigint_equals(hs_bigint *a, hs_bigint *b);
+hs_bigint_equals(const hs_bigint *a, const hs_bigint *b);
 /**@} */
 
 /** @defgroup BigInt non destructive operations
@@ -154,7 +154,7 @@ hs_bigint_equals(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_self_add
  */
 int
-hs_bigint_add(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_add(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief subtracts two big integers, storing the result in dst. ( dst = a - b )
@@ -167,7 +167,7 @@ hs_bigint_add(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_sub
  */
 int
-hs_bigint_sub(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_sub(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief multiplies two big integers, storing the result in dst.( dst = a * b )
@@ -180,7 +180,7 @@ hs_bigint_sub(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_mul
  */
 int
-hs_bigint_mul(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_mul(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief divides two big integers, storing the result in dst. (dst = a / b)
@@ -193,7 +193,7 @@ hs_bigint_mul(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_div
  */
 int
-hs_bigint_div(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_div(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief performs a left shift, storing the result in dst. (dst = a << b)
@@ -206,7 +206,7 @@ hs_bigint_div(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_shl
  */
 int
-hs_bigint_shl(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_shl(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief performs a arithmetic right shift, storing the result in dst. (dst = a >> b)
@@ -219,7 +219,7 @@ hs_bigint_shl(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_shr
  */
 int
-hs_bigint_shr(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_shr(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief performs a logical right shift, storing the result in dst. (dst = a >>> b)
@@ -232,7 +232,7 @@ hs_bigint_shr(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_ushr
  */
 int
-hs_bigint_ushr(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_ushr(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief performs a  bitwise and between a and b, storing the result in dst (dst = a & b)
@@ -245,7 +245,7 @@ hs_bigint_ushr(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_and
  */
 int
-hs_bigint_and(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_and(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief performs a  bitwise or between a and b, storing the result in dst (dst = a | b)
@@ -258,7 +258,7 @@ hs_bigint_and(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_or
  */
 int
-hs_bigint_or(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_or(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief performs a  bitwise exclusive or between a and b, storing the result in dst (dst = a ^ b)
@@ -271,7 +271,7 @@ hs_bigint_or(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_xor
  */
 int
-hs_bigint_xor(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_xor(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief performs a remainder between a and b, storing the result in dst (dst = a % b)
@@ -286,7 +286,7 @@ hs_bigint_xor(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_rem
  */
 int
-hs_bigint_rem(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_rem(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief performs the modulo between a and b, storing the result in dst (dst = a %% b)
@@ -302,7 +302,7 @@ hs_bigint_rem(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_mod
  */
 int
-hs_bigint_mod(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
+hs_bigint_mod(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst);
 
 /**
  * @brief negates a number, storing its value in dst (dst = -src)
@@ -314,7 +314,7 @@ hs_bigint_mod(hs_bigint *a, hs_bigint *b, hs_bigint *dst);
  * @see hs_bigint_self_neg
  */
 int
-hs_bigint_neg(hs_bigint *src, hs_bigint *dst);
+hs_bigint_neg(const hs_bigint *src, hs_bigint *dst);
 
 /**
  * @brief does a two's complement of a number, storing it in dst (dst = ~src)
@@ -326,7 +326,7 @@ hs_bigint_neg(hs_bigint *src, hs_bigint *dst);
  * @see hs_bigint_self_cpl
  */
 int
-hs_bigint_cpl(hs_bigint *src, hs_bigint *dst);
+hs_bigint_cpl(const hs_bigint *src, hs_bigint *dst);
 
 /**
  * @brief Gets the absolute value, storing it in dst (dst = abs(src))
@@ -343,7 +343,7 @@ hs_bigint_cpl(hs_bigint *src, hs_bigint *dst);
  * @see hs_bigint_self_abs
  */
 int
-hs_bigint_abs(hs_bigint *src, hs_bigint *dst);
+hs_bigint_abs(const hs_bigint *src, hs_bigint *dst);
 
 /**
  * @brief Gets both the remainder and the result of a division between two bigints.
@@ -359,7 +359,8 @@ hs_bigint_abs(hs_bigint *src, hs_bigint *dst);
  * @warning remember to call hs_bigint_end() with both res and rem if the functions succeeds.
  */
 int
-hs_bigint_divrem(hs_bigint *a, hs_bigint *b, hs_bigint *res, hs_bigint *rem );
+hs_bigint_divrem(const hs_bigint *a, const hs_bigint *b, 
+                  hs_bigint *res, hs_bigint *rem );
 
 /**@} */
 
@@ -412,7 +413,7 @@ hs_bigint_dec(hs_bigint *bi);
  * @see hs_bigint_add
  */
 int
-hs_bigint_self_add(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_add(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief performs a subtraction between a and b, storing the result in a (a -= b)
@@ -424,7 +425,7 @@ hs_bigint_self_add(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_sub
  */
 int
-hs_bigint_self_sub(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_sub(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief performs a multiplication between a and b, storing the result in a (a *-= b)
@@ -436,7 +437,7 @@ hs_bigint_self_sub(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_mul
  */
 int
-hs_bigint_self_mul(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_mul(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief performs a division between a and b, storing the result in a (a /= b)
@@ -448,7 +449,7 @@ hs_bigint_self_mul(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_div
  */
 int
-hs_bigint_self_div(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_div(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief performs a left shift between a and b, storing the result in a (a <<= b)
@@ -460,7 +461,7 @@ hs_bigint_self_div(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_shl
  */
 int
-hs_bigint_self_shl(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_shl(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief performs a right arithmetic shift between a and b, storing the result in a (a >>= b)
@@ -472,7 +473,7 @@ hs_bigint_self_shl(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_shr
  */
 int
-hs_bigint_self_shr(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_shr(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief performs a  left logical shift between a and b, storing the result in a (a <<<= b)
@@ -484,7 +485,7 @@ hs_bigint_self_shr(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_ushr
  */
 int
-hs_bigint_self_ushr(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_ushr(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief performs a bitwise and between a and b storing the result in a (a &= b)
@@ -496,7 +497,7 @@ hs_bigint_self_ushr(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_and
  */
 int
-hs_bigint_self_and(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_and(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief Gets the remainder of the division between a and b, storing the result in a (a %= b )
@@ -508,7 +509,7 @@ hs_bigint_self_and(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_rem
  */
 int
-hs_bigint_self_rem(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_rem(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief Gets the modulo of the division between a and b, storing the result in a (a %%= b )
@@ -520,7 +521,7 @@ hs_bigint_self_rem(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_mod
  */
 int
-hs_bigint_self_mod(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_mod(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief performs a bitwise or between a and b storing the result in a (a |= b)
@@ -532,7 +533,7 @@ hs_bigint_self_mod(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_or
  */
 int
-hs_bigint_self_or(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_or(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief performs a bitwise exclusive or between a and b storing the result in a (a ^= b)
@@ -544,7 +545,7 @@ hs_bigint_self_or(hs_bigint *a, hs_bigint *b);
  * @see hs_bigint_xor
  */
 int
-hs_bigint_self_xor(hs_bigint *a, hs_bigint *b);
+hs_bigint_self_xor(hs_bigint *a, const hs_bigint *b);
 
 /**
  * @brief negates the value of a number on itself (bi = -bi)

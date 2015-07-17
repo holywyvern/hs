@@ -26,7 +26,7 @@ inc_bits(hs_bigint *bi)
 }
 
 static int
-need_sub_inversion(hs_bigint *a, hs_bigint *b)
+need_sub_inversion(const hs_bigint *a, const hs_bigint *b)
 {
   if ( a->size > b->size ) return 0;
   if ( a->size < b->size ) return 1;
@@ -53,7 +53,7 @@ dec_bits(hs_bigint *bi)
 
   
 static int
-add_bits(hs_bigint *a, hs_bigint *b)
+add_bits(hs_bigint *a, const hs_bigint *b)
 {
   uint32_t carry = 0;
   uint64_t tmp;
@@ -89,7 +89,7 @@ add_bits(hs_bigint *a, hs_bigint *b)
 }
 
 static int
-sub_bits(hs_bigint *a, hs_bigint *b)
+sub_bits(hs_bigint *a, const hs_bigint *b)
 {
   uint64_t tmp;
   uint32_t carry;
@@ -115,7 +115,7 @@ sub_bits(hs_bigint *a, hs_bigint *b)
 }
 
 static int
-shift_right(hs_bigint *a, hs_bigint *b)
+shift_right(hs_bigint *a, const hs_bigint *b)
 {
   int carry;
   int t;  
@@ -153,7 +153,7 @@ shift_right(hs_bigint *a, hs_bigint *b)
  * basically the same. 
  */
 static int
-divrem(hs_bigint *a, hs_bigint *b, hs_bigint *accum, hs_bigint *rem)
+divrem(const hs_bigint *a, const hs_bigint *b, hs_bigint *accum, hs_bigint *rem)
 {
   hs_bigint abs_b;
   int accum_negative = a->negative ^ b->negative;
@@ -166,12 +166,13 @@ divrem(hs_bigint *a, hs_bigint *b, hs_bigint *accum, hs_bigint *rem)
   };
   if (hs_bigint_from_i32(accum, 0)) return 1;
   if (hs_bigint_copy(b, abs_b)) { hs_bigint_end(&accum); return 1; }
-  a->negative = abs_b->negative = 0;
+  abs_b->negative = 0;
   if (hs_bigint_copy(a, rem)) { 
     hs_bigint_end(accum); 
     hs_bigint_end(&abs_b); 
     return 1; 
   }
+  rem->negative = 0;
   while ( hs_bigint_compare(rem, abs_b) >= 0 )
   {
     if (sub_bits(rem, b)) {  
@@ -194,13 +195,13 @@ divrem(hs_bigint *a, hs_bigint *b, hs_bigint *accum, hs_bigint *rem)
 } 
 
 static int
-is_zero(hs_bigint *bi)
+is_zero(const hs_bigint *bi)
 {
   return (bi->size < 2) && (bi->data[0] == 0);
 }
 
 static int
-check_size( hs_bigint *bi, size_t add )
+check_size( hs_bigint *bi, const size_t add )
 {
   if (SIZE_MAX - add < bi->size) return 1;
   if (bi->size + add <= bi->capa) return 0;
@@ -213,7 +214,7 @@ check_size( hs_bigint *bi, size_t add )
 }
 
 int 
-hs_bigint_init(hs_bigint *bi, size_t capa)
+hs_bigint_init(hs_bigint *bi, const size_t capa)
 {
   if (capa == 0) return 1;
   bi->data = malloc(capa * sizeof(*(bi->data)));
@@ -226,7 +227,7 @@ hs_bigint_init(hs_bigint *bi, size_t capa)
 }
 
 int
-hs_bigint_from_i32(hs_bigint *bi, uint32_t value)
+hs_bigint_from_i32(hs_bigint *bi, const uint32_t value)
 {
   if (hs_bigint_init(bi, 1)) return 1;
   bi->data[0] = value;
@@ -234,7 +235,7 @@ hs_bigint_from_i32(hs_bigint *bi, uint32_t value)
 }
 
 int
-hs_bigint_from_i32(hs_bigint *bi, int32_t value)
+hs_bigint_from_i32(hs_bigint *bi, const int32_t value)
 {
   if (hs_bigint_init(bi, 1)) return 1;
   bi->data[0] = (uint32_t)(value & (uint32_t)INT32_MAX);
@@ -243,7 +244,7 @@ hs_bigint_from_i32(hs_bigint *bi, int32_t value)
 }
 
 int
-hs_bigint_from_u64(hs_bigint *bi, uint64_t value)
+hs_bigint_from_u64(hs_bigint *bi, const uint64_t value)
 {
   if (hs_bigint_init(bi, 2)) return 1;
   bi->data[0] = (uint32_t)(value & (uint64_t)UINT32_MAX);
@@ -252,7 +253,7 @@ hs_bigint_from_u64(hs_bigint *bi, uint64_t value)
 }
 
 int
-hs_bigint_from_i64(hs_bigint *bi, int64_t value)
+hs_bigint_from_i64(hs_bigint *bi, const int64_t value)
 {
   if (hs_bigint_from_u64(bi, (value & (uint64_t)INT64_MAX) )) return 1;
   bi->negative = value < 0; 
@@ -267,7 +268,7 @@ hs_bigint_end(hs_bigint *bi)
 }
 
 int 
-hs_bigint_copy(hs_bigint *src, hs_bigint *dst)
+hs_bigint_copy(const hs_bigint *src, hs_bigint *dst)
 {
   if (hs_bigint_init(dst, src->size)) return 1;
   dst->size = src->size;
@@ -277,7 +278,7 @@ hs_bigint_copy(hs_bigint *src, hs_bigint *dst)
 }
 
 int
-hs_bigint_compare(hs_bigint *a, hs_bigint *b)
+hs_bigint_compare(const hs_bigint *a, const hs_bigint *b)
 {
   size_t j, k;
   if (is_zero(a) && is_zero(b)) return 0;
@@ -308,7 +309,7 @@ hs_bigint_compare(hs_bigint *a, hs_bigint *b)
 }
 
 int
-hs_bigint_equals(hs_bigint *a, hs_bigint *b)
+hs_bigint_equals(const hs_bigint *a, const hs_bigint *b)
 {
   if (is_zero(a) && is_zero(b)) return 1;
   if (a->negative != b->negative) return 0;
@@ -320,7 +321,7 @@ hs_bigint_equals(hs_bigint *a, hs_bigint *b)
 }
 
 int
-hs_bigint_add(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_add(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_add(dst, b)) {
@@ -331,7 +332,7 @@ hs_bigint_add(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_sub(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_sub(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_sub(dst, b)) {
@@ -342,7 +343,7 @@ hs_bigint_sub(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_mul(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_mul(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_mul(dst, b)) {
@@ -353,7 +354,7 @@ hs_bigint_mul(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_div(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_div(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_div(dst, b)) {
@@ -364,7 +365,7 @@ hs_bigint_div(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_shl(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_shl(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_shl(dst, b)) {
@@ -375,7 +376,7 @@ hs_bigint_shl(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_shr(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_shr(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_shr(dst, b)) {
@@ -386,7 +387,7 @@ hs_bigint_shr(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_ushr(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_ushr(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_ushr(dst, b)) {
@@ -397,7 +398,7 @@ hs_bigint_ushr(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_and(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_and(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_and(dst, b)) {
@@ -408,7 +409,7 @@ hs_bigint_and(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_or(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_or(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_or(dst, b)) {
@@ -419,7 +420,7 @@ hs_bigint_or(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_xor(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_xor(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_xor(dst, b)) {
@@ -430,7 +431,7 @@ hs_bigint_xor(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_rem(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_rem(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_rem(dst, b)) {
@@ -441,7 +442,7 @@ hs_bigint_rem(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_mod(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
+hs_bigint_mod(const hs_bigint *a, const hs_bigint *b, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_mod(dst, b)) {
@@ -452,7 +453,7 @@ hs_bigint_mod(hs_bigint *a, hs_bigint *b, hs_bigint *dst)
 }
 
 int
-hs_bigint_neg(hs_bigint *src, hs_bigint *dst)
+hs_bigint_neg(const hs_bigint *src, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_neg(dst)) {
@@ -463,7 +464,7 @@ hs_bigint_neg(hs_bigint *src, hs_bigint *dst)
 }
 
 int
-hs_bigint_cpl(hs_bigint *src, hs_bigint *dst)
+hs_bigint_cpl(const hs_bigint *src, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_cpl(dst)) {
@@ -474,7 +475,7 @@ hs_bigint_cpl(hs_bigint *src, hs_bigint *dst)
 }
 
 int
-hs_bigint_abs(hs_bigint *src, hs_bigint *dst)
+hs_bigint_abs(const hs_bigint *src, hs_bigint *dst)
 {
   if (hs_bigint_copy(a, dst)) return 1;
   if (hs_bigint_self_abs(dst)) {
@@ -502,7 +503,7 @@ hs_bigint_dec(hs_bigint *bi)
 }
 
 int
-hs_bigint_self_add(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_add(hs_bigint *a, const hs_bigint *b)
 {
   if (a->negative == b->negative) return add_bits(a, b);
   if  (need_sub_inversion(a, b)) {
@@ -513,7 +514,7 @@ hs_bigint_self_add(hs_bigint *a, hs_bigint *b)
 }
 
 int
-hs_bigint_self_sub(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_sub(hs_bigint *a, const hs_bigint *b)
 {
   if (a->negative != b->negative) return add_bits(a, b);
   if  (need_sub_inversion(a, b)) {
@@ -531,7 +532,7 @@ hs_bigint_self_sub(hs_bigint *a, hs_bigint *b)
  * rest of algorithm.
  */
 int
-hs_bigint_self_mul(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_mul(hs_bigint *a, const hs_bigint *b)
 {
   hs_bigint count, accum, abs_b;
   int negative = a->negative ^ b->negative;
@@ -574,7 +575,7 @@ hs_bigint_self_mul(hs_bigint *a, hs_bigint *b)
 
  
 int
-hs_bigint_self_div(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_div(hs_bigint *a, const hs_bigint *b)
 {
   hs_bigint accum, rem;
   if (divrem(a, b, &accum, &rem) return 1;
@@ -592,7 +593,7 @@ hs_bigint_self_div(hs_bigint *a, hs_bigint *b)
  * always preserved to ensure this.
  */
 int
-hs_bigint_self_shl(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_shl(hs_bigint *a, const hs_bigint *b)
 {
   int carry, t;
   if (b->negative || is_zero(b)) return 1;
@@ -619,7 +620,7 @@ hs_bigint_self_shl(hs_bigint *a, hs_bigint *b)
 }
 
 int
-hs_bigint_self_shr(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_shr(hs_bigint *a, const hs_bigint *b)
 {
   if (shift_right(a, b)) return 1;
   /* In signed (logical) right shift, the sign is preserved */
@@ -627,7 +628,7 @@ hs_bigint_self_shr(hs_bigint *a, hs_bigint *b)
 }
 
 int
-hs_bigint_self_ushr(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_ushr(hs_bigint *a, const hs_bigint *b)
 {
   if (shift_right(a, b)) return 1;
   /* In unsigned (arithmetic) right shift, the sign disappears */
@@ -636,7 +637,7 @@ hs_bigint_self_ushr(hs_bigint *a, hs_bigint *b)
 }
 
 int
-hs_bigint_self_and(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_and(hs_bigint *a, const hs_bigint *b)
 {
   size_t size = a->size < b->size ? a->size : b->size;
   a->size = size;
@@ -648,7 +649,7 @@ hs_bigint_self_and(hs_bigint *a, hs_bigint *b)
 }
 
 int
-hs_bigint_self_rem(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_rem(hs_bigint *a, const hs_bigint *b)
 {
   hs_bigint accum, rem;
   if (divrem(a, b, &accum, &rem) return 1;
@@ -661,14 +662,17 @@ hs_bigint_self_rem(hs_bigint *a, hs_bigint *b)
 }
 
 int
-hs_bigint_self_mod(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_mod(hs_bigint *a, const hs_bigint *b)
 {
-  /* TODO: implement */
-  return 1;
+  /* TODO: implement (a % b + b) % b  */
+  if ( hs_bigint_self_rem(a, b) ) return 1;
+  if ( hs_bigint_self_add(a, b) ) return 1;
+  if ( hs_bigint_self_rem(a, b) ) return 1;
+  return 0;
 }
 
 int
-hs_bigint_self_or(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_or(hs_bigint *a, const hs_bigint *b)
 {
   size_t size = a->size < b->size ? a->size : b->size;
   if (a->size < b->size) {
@@ -687,7 +691,7 @@ hs_bigint_self_or(hs_bigint *a, hs_bigint *b)
 }
 
 int
-hs_bigint_self_xor(hs_bigint *a, hs_bigint *b)
+hs_bigint_self_xor(hs_bigint *a, const hs_bigint *b)
 {
   size_t size = a->size < b->size ? a->size : b->size;
   if (a->size < b->size) {
@@ -736,7 +740,8 @@ hs_bigint_self_cpl(hs_bigint *bi)
 }
 
 int
-hs_bigint_divrem(hs_bigint *a, hs_bigint *b, hs_bigint *res, hs_bigint *rem )
+hs_bigint_divrem(const hs_bigint *a, const hs_bigint *b, 
+                  hs_bigint *res, hs_bigint *rem )
 {
   return divrem(a, b, res, rem);
 }
