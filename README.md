@@ -34,4 +34,13 @@ Contains the virtual machine for the language
 
   * Implement a simple garbage collection.
   * Implement virtual machine
+  * Implement lexer
+  * Implement parser
+  * Implement compiler
+  * Implement bigdecimals
+  * Implement the type system
+  * Add more file APIs
+  * Create an easy to use makefile/bakefile
   * Add documentation
+  * Test cases
+  * Examples
