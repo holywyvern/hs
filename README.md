@@ -27,6 +27,9 @@ Contains the list of opcodes used by the machine
 ### hs/thread
 Contains a simple thread lock/unlock cross platform API.
 
+### hs/types
+Contains a list of types used by the language 
+
 ### hs/vm (TODO)
 Contains the virtual machine for the language
 
@@ -34,6 +37,9 @@ Contains the virtual machine for the language
 
   * Implement a simple garbage collection.
   * Implement virtual machine
+  * Implement dynamic lists
+  * Implement dynamic sets
+  * Implement dynamic maps
   * Implement lexer
   * Implement parser
   * Implement compiler
