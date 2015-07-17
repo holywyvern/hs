@@ -1,11 +1,26 @@
 #include <stdint.h>
 #include "hs/bigint.h"
 
+/**
+ * @brief increments the value of a number by 1
+ *
+ * This is used internally by hs_bigint_inc() and hs_bigint_dec()
+ * This function does not check if the numbers themselves are positive nor 
+ * negative
+ *
+ * @param bi A number to increment
+ * @return A non zero value on error, zero if the function succeeds
+ * @see hs_bigint_inc
+ * @see hs_bigint_dec
+ */
 static int
 inc_bits(hs_bigint *bi)
 {
   size_t i = 0;
+  
   while ( i < bi->size ) {
+    /* If the number is less than the minimun, 
+       then we can just increment it by 1 */
     if ( bi->data[i] != UINT32_MAX ) {
       ++(bi->data[i]);
       return 0;
@@ -13,6 +28,7 @@ inc_bits(hs_bigint *bi)
     bi->data[i] = 0;
     ++i;
   }
+  /* if we still need to increment, we just check if we can upgrade our number*/
   if ( check_size(bi, 1) ) 
   {
     while (i > 0) {
@@ -25,9 +41,21 @@ inc_bits(hs_bigint *bi)
   return 0;
 }
 
+/**
+ * @brief checks if the numbers are meant to be swapped in substraction
+ *
+ * This is used internally by hs_bigint_sub() and hs_bigint_add()
+ *
+ * @param a The left operand
+ * @param b The right operand
+ * @return A non zero value on error, zero if the function succeeds
+ * @see hs_bigint_add
+ * @see hs_bigint_sub
+ */
 static int
 need_sub_inversion(const hs_bigint *a, const hs_bigint *b)
 {
+  /* we always want the bigger value to be on our left side */
   if ( a->size > b->size ) return 0;
   if ( a->size < b->size ) return 1;
   size_t i = a->size - 1;
@@ -35,6 +63,18 @@ need_sub_inversion(const hs_bigint *a, const hs_bigint *b)
   return 0;
 }
 
+/**
+ * @brief decrements the value of a number by 1
+ *
+ * This is used internally by hs_bigint_inc() and hs_bigint_dec()
+ * This function does not check if the numbers themselves are positive nor 
+ * negative
+ *
+ * @param bi A number to decrement
+ * @return A non zero value on error, zero if the function succeeds
+ * @see hs_bigint_inc
+ * @see hs_bigint_dec
+ */
 static int
 dec_bits(hs_bigint *bi)
 {
@@ -51,7 +91,17 @@ dec_bits(hs_bigint *bi)
   return 0;
 }
 
-  
+/**
+ * @brief adds bits between two bigints
+ *
+ * This is used internally by hs_bigint_add() and hs_bigint_sub()
+ *
+ * @param a The left operand
+ * @param b The right operand
+ * @return A non zero value on error, zero if the function succeeds
+ * @see hs_bigint_add
+ * @see hs_bigint_sub
+ */
 static int
 add_bits(hs_bigint *a, const hs_bigint *b)
 {
@@ -88,6 +138,17 @@ add_bits(hs_bigint *a, const hs_bigint *b)
   return 0;
 }
 
+/**
+ * @brief subtracts bits between two bigints
+ *
+ * This is used internally by hs_bigint_add() and hs_bigint_sub()
+ *
+ * @param a The left operand
+ * @param b The right operand
+ * @return A non zero value on error, zero if the function succeeds
+ * @see hs_bigint_add
+ * @see hs_bigint_sub
+ */
 static int
 sub_bits(hs_bigint *a, const hs_bigint *b)
 {
@@ -114,6 +175,17 @@ sub_bits(hs_bigint *a, const hs_bigint *b)
   }
 }
 
+/**
+ * @brief shifts to the right a bigint
+ *
+ * This is an arithmetic shift and does not check the sign after it finishes
+ *
+ * @param a The left operand
+ * @param b The right operand
+ * @return A non zero value on error, zero if the function succeeds
+ * @see hs_bigint_shr
+ * @see hs_bigint_ushr
+ */
 static int
 shift_right(hs_bigint *a, const hs_bigint *b)
 {
@@ -145,12 +217,24 @@ shift_right(hs_bigint *a, const hs_bigint *b)
 }
 
 /**
+ * @brief divides two numbers, returning both remainder and the result
+ *
  * I don't really know how to do a faster division algorithm, so I take
  * the approach of how the division is defined, by subtracting "b" to "a" until 
  * "a" is less than "b", then return the number of times "b" was 
  * subtracted from "a".
  * The advantage of this is that the division and remainder functions are
  * basically the same. 
+ *
+ * @param a The left operand
+ * @param b The right operand
+ *
+ * @param accum The variable to store the result
+ * @param rem The variable to store ther remainder
+ * @return A non zero value on error, zero if the function succeeds
+ * @see hs_bigint_div
+ * @see hs_bigint_rem
+ * @see hs_bigint_divrem
  */
 static int
 divrem(const hs_bigint *a, const hs_bigint *b, hs_bigint *accum, hs_bigint *rem)
@@ -194,18 +278,38 @@ divrem(const hs_bigint *a, const hs_bigint *b, hs_bigint *accum, hs_bigint *rem)
   return 0;
 } 
 
+/**
+ * @brief checks if a number is zero
+ *
+ * Both negative (-0) and positive zero (+0) returns as true
+ *
+ * @param bi A number to check
+ * @return A non zero value if bi is zero, zero if not
+ */
 static int
 is_zero(const hs_bigint *bi)
 {
   return (bi->size < 2) && (bi->data[0] == 0);
 }
 
+/**
+ * @brief checks if a number can increase the size of its buffer
+ *
+ * This is used in order to prevent things like segmentation faults and
+ * overflows.
+ *
+ * @param bi A number to check
+ * @return A non zero value on error, zero if the function succeeds
+ */
 static int
 check_size( hs_bigint *bi, const size_t add )
 {
+  /* If this happens, sorry, there will be an overflow and I can't afford that */
   if (SIZE_MAX - add < bi->size) return 1;
+  /* If the number has already reserved the bits, then its okay */
   if (bi->size + add <= bi->capa) return 0;
-  size_t new_capa = bi->capa * 2 + 1;
+  /* Let's add those bits */
+  size_t new_capa = bi->capa + add;
   uint32_t new_data = realloc(bi->data, new_capa * sizeof(*(bi->data)));
   if (!new_data) return 1;
   bi->data = new_data;
