@@ -16,14 +16,12 @@ extern "C" {
 #endif
 
 #ifdef _WIN32
-
 #include <windows.h>
-
 #else
-
 #include <fcntl.h>
-
 #endif
+
+#include <stdint.h>
 
 #ifdef _WIN32
 
@@ -117,6 +115,100 @@ hs_set_stdout(hs_file *fp);
  */
 int
 hs_set_stderr(hs_file *fp);
+
+int
+hs_file_eof(hs_file *fp);
+
+size_t
+hs_file_read_bytes(hs_file *fp, char *data, const size_t size);
+
+size_t
+hs_file_write_bytes(hs_file *fp, const void *data, const size_t size);
+
+int
+hs_file_move(hs_file *fp, intmax_t distance, int relative_to);
+
+size_t
+hs_file_read_u8(hs_file *fp, uint8_t *dst, size_t const size);
+
+size_t
+hs_file_read_u16(hs_file *fp, uint16_t *dst, size_t const size);
+
+size_t
+hs_file_read_u32(hs_file *fp, uint32_t *dst, size_t const size);
+
+size_t
+hs_file_read_u64(hs_file *fp, uint64_t *dst, size_t const size);
+
+size_t
+hs_file_read_umax(hs_file *fp, uintmax_t *dst, size_t const size);
+
+size_t
+hs_file_read_i8(hs_file *fp, uint8_t *dst, size_t const size);
+
+size_t
+hs_file_read_i16(hs_file *fp, uint16_t *dst, size_t const size);
+
+size_t
+hs_file_read_i32(hs_file *fp, uint32_t *dst, size_t const size);
+
+size_t
+hs_file_read_i64(hs_file *fp, uint64_t *dst, size_t const size);
+
+size_t
+hs_file_read_imax(hs_file *fp, intmax_t *dst, size_t const size);
+
+size_t
+hs_file_read_float(hs_file *fp, float *dst, size_t const size);
+
+size_t
+hs_file_read_double(hs_file *fp, double *dst, size_t const size);
+
+size_t
+hs_file_read_ldouble(hs_file *fp, long double *dst, const size_t size);
+
+size_t
+hs_file_write_u8(hs_file *fp, const uint8_t *value, const size_t size);
+
+size_t
+hs_file_write_u16(hs_file *fp, const uint16_t *value, const size_t size);
+
+size_t
+hs_file_write_u32(hs_file *fp, const uint32_t *value, const size_t size);
+
+size_t
+hs_file_write_u64(hs_file *fp, const uint64_t *value, const size_t size);
+
+size_t
+hs_file_write_umax(hs_file *fp, const uintmax_t *value, const size_t size);
+
+size_t
+hs_file_write_i8(hs_file *fp, const uint8_t *value, const size_t size);
+
+size_t
+hs_file_write_i16(hs_file *fp, const uint16_t *value, const size_t size);
+
+size_t
+hs_file_write_i32(hs_file *fp, const uint32_t *value, const size_t size);
+
+size_t
+hs_file_write_i64(hs_file *fp, const uint64_t *value, const size_t size);
+
+size_t
+hs_file_write_imax(hs_file *fp, const intmax_t *value, const size_t size);
+
+size_t
+hs_file_write_float(hs_file *fp, const float *value, const size_t size);
+
+size_t
+hs_file_write_double(hs_file *fp, const double *value, const size_t size);
+
+size_t
+hs_file_write_ldouble(hs_file *fp, const long double *value, const size_t size);
+
+#define HS_FILE_POS_CURRENT 0
+#define HS_FILE_POS_START   1
+#define HS_FILE_POS_END     2
 
 #ifdef __cplusplus
 }
