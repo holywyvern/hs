@@ -67,6 +67,57 @@ hs_file_open(hs_file *fd, const char *name, const char *mode );
 int
 hs_file_close(hs_file *fd);
 
+/**
+ * @brief Gets the current file handle for the standard input
+ *
+ * @param fp A pointer to store the file descriptor handle
+ */
+void
+hs_get_stdin(hs_file *fp);
+
+/**
+ * @brief Gets the current file handle for the standard output
+ *
+ * @param fp A pointer to store the file descriptor handle
+ */
+void
+hs_get_stdout(hs_file *fp);
+
+/**
+ * @brief Gets the current file handle for the standard error 
+ *
+ * @param fp A pointer to store the file descriptor handle
+ */
+void
+hs_get_stderr(hs_file *fp);
+
+/**
+ * @brief Sets the current file handle for the standard input
+ *
+ * @param fp A pointer with the file descriptor handle
+ * @return zero on success, a non zero value on failure
+ */
+int
+hs_set_stdin(hs_file *fp);
+
+/**
+ * @brief Sets the current file handle for the standard output
+ *
+ * @param fp A pointer with the file descriptor handle
+ * @return zero on success, a non zero value on failure
+ */
+int
+hs_set_stdout(hs_file *fp);
+
+/**
+ * @brief Sets the current file handle for the standard error
+ *
+ * @param fp A pointer with the file descriptor handle
+ * @return zero on success, a non zero value on failure
+ */
+int
+hs_set_stderr(hs_file *fp);
+
 #ifdef __cplusplus
 }
 #endif

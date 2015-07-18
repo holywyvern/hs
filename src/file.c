@@ -10,6 +10,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "hs/file.h"
 
@@ -104,5 +105,74 @@ hs_file_close(hs_file *fd)
   return !CloseHandle(*fd);
 #else
   return close(*fd);
+#end
+}
+
+void
+hs_get_stdin(hs_file *fp)
+{
+#ifdef _WIN32  
+  *fp = GetStdHandle(STD_INPUT_HANDLE);
+#else
+   return fileno(stdin);
+#end
+}
+
+void
+hs_get_stdout(hs_file *fp)
+{
+#ifdef _WIN32  
+  *fp = GetStdHandle(STD_OUTPUT_HANDLE);
+#else
+  return fileno(stdout);
+#end
+}
+
+void
+hs_get_stderr(hs_file *fp)
+{
+#ifdef _WIN32  
+  *fp = GetStdHandle(STD_ERROR_HANDLE);
+#else
+  return fileno(stderr);
+#end
+}
+
+int
+hs_set_stdin(hs_file *fp)
+{
+#ifdef _WIN32  
+  return !SetStdHandle(STD_INPUT_HANDLE, *fp);
+#else
+  FILE *f = fdopen(*fp, "rb+");
+  if (!f) return 1;
+  stdin = f;
+  return 0;  
+#end
+}
+
+int
+hs_set_stdout(hs_file *fp)
+{
+#ifdef _WIN32  
+  return !SetStdHandle(STD_OUTPUT_HANDLE, *fp);
+#else
+  FILE *f = fdopen(*fp, "wb+");
+  if (!f) return 1;
+  stdout = f;
+  return 0;  
+#end
+}
+
+int
+hs_set_stderr(hs_file *fp)
+{
+#ifdef _WIN32  
+  return !SetStdHandle(STD_ERROR_HANDLE, *fp);
+#else
+  FILE *f = fdopen(*fp, "ab+");
+  if (!f) return 1;
+  stderr = f;
+  return 0;
 #end
 }
