@@ -160,6 +160,15 @@ int
 hs_file_seek(hs_file *fp, intmax_t distance, int relative_to);
 
 /**
+ * @brief Gets the current position of a file
+ *
+ * @param fp The file descriptor
+ * @return the position of the file
+ */
+size_t
+hs_file_pos(hs_file *fp);
+
+/**
  * @brief reads an array of unsigned 8 bit integer from the stream.
  *
  * @param fp The file descriptor

@@ -38,7 +38,14 @@ utf8_to_utf16(const char *str)
 
 
 #else
-  #include <unistd.h>
+
+#include <unistd.h>
+#include <fcntl.h>
+
+static const FILE *org_stdin  = stdin;
+static const FILE *org_stdout = stdout;
+static const FILE *org_stderr = stderr;
+
 #endif
 
 int
@@ -105,7 +112,7 @@ hs_file_close(hs_file *fd)
   return !CloseHandle(*fd);
 #else
   return close(*fd);
-#end
+#endif
 }
 
 void
@@ -115,7 +122,7 @@ hs_get_stdin(hs_file *fp)
   *fp = GetStdHandle(STD_INPUT_HANDLE);
 #else
    return fileno(stdin);
-#end
+#endif
 }
 
 void
@@ -125,7 +132,7 @@ hs_get_stdout(hs_file *fp)
   *fp = GetStdHandle(STD_OUTPUT_HANDLE);
 #else
   return fileno(stdout);
-#end
+#endif
 }
 
 void
@@ -135,7 +142,7 @@ hs_get_stderr(hs_file *fp)
   *fp = GetStdHandle(STD_ERROR_HANDLE);
 #else
   return fileno(stderr);
-#end
+#endif
 }
 
 int
@@ -146,9 +153,10 @@ hs_set_stdin(hs_file *fp)
 #else
   FILE *f = fdopen(*fp, "rb+");
   if (!f) return 1;
+  if (stdin != org_stdin) fclose(stdin);
   stdin = f;
   return 0;  
-#end
+#endif
 }
 
 int
@@ -159,9 +167,10 @@ hs_set_stdout(hs_file *fp)
 #else
   FILE *f = fdopen(*fp, "wb+");
   if (!f) return 1;
+  if (stdout != org_stdout) fclose(stdout);
   stdout = f;
   return 0;  
-#end
+#endif
 }
 
 int
@@ -172,181 +181,264 @@ hs_set_stderr(hs_file *fp)
 #else
   FILE *f = fdopen(*fp, "ab+");
   if (!f) return 1;
+  if (stderr != org_stderr) fclose(stderr);
   stderr = f;
   return 0;
-#end
+#endif
 }
 
 size_t
 hs_file_read_bytes(hs_file *fp, void *data, const size_t size)
 {
-  
+#ifdef _WIN32  
+  DWORD read;
+  if (!ReadFile(*fp, data, size, &read, NULL)) return 0;
+  return read;
+#else  
+  ssize_t r = read(*fp, data, size);
+  if (r < 0) return 0;
+  return r;
+#endif
 }
 
 size_t
 hs_file_write_bytes(hs_file *fp, const void *data, const size_t size)
 {
-  
+#ifdef _WIN32  
+  DWORD wrote;
+  if (!WriteFile(*fp, data, size, &wrote, NULL)) return 0;
+  return wrote;
+#else  
+  ssize_t wrote = write(*fp, data, size);
+  if (wrote < 0) return 0;
+  return wrote;
+#endif 
 }
 
 int
 hs_file_seek(hs_file *fp, intmax_t distance, int relative_to)
 {
-  
+#ifdef _WIN32  
+  LARGE_INTEGER  d, r;
+  d.QuadPart = distance;
+  switch (relative_to)
+  {
+    case HS_FILE_POS_CURRENT:
+      return !SetFilePointerEx(*fp, d, &r, FILE_CURRENT);
+    case HS_FILE_POS_START:
+      return !SetFilePointerEx(*fp, d, &r, FILE_BEGIN);
+    case HS_FILE_POS_END:
+      return !SetFilePointerEx(*fp, d, &r, FILE_END);
+    default:
+      break;
+  };
+#else  
+  switch (relative_to)
+  {
+    case HS_FILE_POS_CURRENT:
+      return lseek(*fp, distance, SEEK_CUR) < 0 ? 1 : 0;
+    case HS_FILE_POS_START:
+      return lseek(*fp, distance, SEEK_SET) < 0 ? 1 : 0;
+    case HS_FILE_POS_END:
+      return lseek(*fp, distance, SEEK_END) < 0 ? 1 : 0;
+    default:
+      break;
+  };
+#endif
+  return 1;
+}
+
+size_t
+hs_file_pos(hs_file *fp)
+{
+#ifdef _WIN32    
+  LARGE_INTEGER liOfs={0};
+  LARGE_INTEGER liNew={0};
+  SetFilePointerEx(hFile, liOfs, &liNew, FILE_CURRENT);
+  return liNew.QuadPart;  
+#else  
+  off_t pos = lseek(*fp, 0, SEEK_CUR);
+  return pos < 0 ? 0 : pos;
+#endif
 }
 
 size_t
 hs_file_read_u8(hs_file *fp, uint8_t *dst, const size_t size)
 {
-  
+  return hs_file_read_bytes(fp, dst, size);
 }
 
 size_t
 hs_file_read_u16(hs_file *fp, uint16_t *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_u32(hs_file *fp, uint32_t *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_u64(hs_file *fp, uint64_t *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_umax(hs_file *fp, uintmax_t *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_i8(hs_file *fp, uint8_t *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_i16(hs_file *fp, uint16_t *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_i32(hs_file *fp, uint32_t *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_i64(hs_file *fp, uint64_t *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_imax(hs_file *fp, intmax_t *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_float(hs_file *fp, float *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_double(hs_file *fp, double *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_read_ldouble(hs_file *fp, long double *dst, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_u8(hs_file *fp, const uint8_t *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_u16(hs_file *fp, const uint16_t *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_u32(hs_file *fp, const uint32_t *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_u64(hs_file *fp, const uint64_t *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_umax(hs_file *fp, const uintmax_t *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_i8(hs_file *fp, const uint8_t *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_i16(hs_file *fp, const uint16_t *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_i32(hs_file *fp, const uint32_t *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_i64(hs_file *fp, const uint64_t *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_imax(hs_file *fp, const intmax_t *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_float(hs_file *fp, const float *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_double(hs_file *fp, const double *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
 
 size_t
 hs_file_write_ldouble(hs_file *fp, const long double *value, const size_t size)
 {
-  
+  /* TODO: implement */
+  return 0;
 }
