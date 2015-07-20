@@ -35,6 +35,21 @@ extern "C" {
 #endif
 
 /**
+ * An structure created to get information about files
+ */
+typedef struct hs_file_stat
+{
+  /** An unix time representing the creation time */
+  uintmax_t created_time;
+  /** An unix time representing the last modification time */
+  uintmax_t modified_time;
+  /** An unix time representing the last access time */
+  uintmax_t access_time;
+  /** zero if the current file is not a directory, non zero otherwise */
+  int       is_dir;
+} hs_file_stat;
+
+/**
  * @brienf opens a file, in a mode indicated
  *
  * All files are opened as both byte and text mode.
@@ -513,6 +528,26 @@ hs_file_write_double(hs_file *fp, const double *value, const size_t size);
 size_t
 hs_file_write_ldouble(hs_file *fp, const long double *value, const size_t size);
 
+/**
+ * @brief Gets information about a file descriptor
+ * 
+ * @param fp A file descriptor
+ * @param stat A hs_file_stat structure to pass the information
+ * @return zero on success, a non zero value on failure
+ */
+int
+hs_file_stat(hs_file *fp, hs_file_stat *stat);
+ 
+/**
+ * @brief gets a file descriptor of a FILE* structure
+ *
+ * @param file a FILE pointer to get the descriptor
+ * @param fp A file descriptor to store the result
+ * @return zero on success, a non zero value on failure
+ */
+int
+hs_file_stat(FILE *file, hs_file *fp );
+ 
 #define HS_FILE_POS_CURRENT 0
 #define HS_FILE_POS_START   1
 #define HS_FILE_POS_END     2

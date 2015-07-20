@@ -268,6 +268,46 @@ hs_file_read_u8(hs_file *fp, uint8_t *dst, const size_t size)
   return hs_file_read_bytes(fp, dst, size);
 }
 
+int
+hs_file_stat(hs_file *fp, hs_file_stat *stat)
+{
+#ifdef _WIN32    
+  FILE_NAME_INFO info;
+  if (!GetFileInformationByHandleEx(*fp, 0, &info, sizeof(info))) {
+    return 1;
+  }
+  stat->created_time = info.CreationTime.QuadPart;
+  stat->modified_time = info.ChangeTime.QuadPart;
+  stat->access_time = info.LastAccessTime.QuadPart;
+  stat->is_dir = !!(info.FileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+#else  
+  struct stat info;
+  if (fstat(*fd, &info)) return 1; 
+  stat->created_time = info.st_atime;
+  stat->modified_time = info.st_mtime;
+  stat->access_time = info.st_ctime;
+  stat->is_dir = !!S_ISDIR(info.st_mode);
+#endif
+  return 0;
+}
+
+int
+hs_file_descriptor(FILE *file, hs_file *fp )
+{
+#ifdef _WIN32    
+  
+#ifndef q4_WCE  
+  *fp = _get_osfhandle(_fileno(file));
+#else
+  *fp = (HANDLE)_fileno(file);
+#endif /* q4_WCE */
+  
+#else  
+  *fp = fileno(file);
+#endif  
+  return 0;
+}
+
 size_t
 hs_file_read_u16(hs_file *fp, uint16_t *dst, const size_t size)
 {
