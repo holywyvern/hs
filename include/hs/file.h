@@ -124,7 +124,7 @@ hs_set_stderr(hs_file *fp);
  * @param fp The file descriptor
  * @param data The array of bytes to read
  * @param size The size of bytes of the data array
- * @return The number of bytes readed, zero on error.
+ * @return The number of bytes read, zero on error.
  */
 size_t
 hs_file_read_bytes(hs_file *fp, void *data, const size_t size);
@@ -165,7 +165,7 @@ hs_file_seek(hs_file *fp, intmax_t distance, int relative_to);
  * @param fp The file descriptor
  * @dst The array of integers
  * @size The size of the array
- * @return The number of bytes read into the array
+ * @return The number of bytes read from the file
  */
 size_t
 hs_file_read_u8(hs_file *fp, uint8_t *dst, const size_t size);
@@ -173,12 +173,12 @@ hs_file_read_u8(hs_file *fp, uint8_t *dst, const size_t size);
 /**
  * @brief reads an array of unsigned 16 bit integer from the stream.
  *
- * Thus function has the advantage of being endianness independent
+ * This function has the advantage of being endianness independent
  *
  * @param fp The file descriptor
  * @dst The array of integers
- * @size The size of the array
- * @return The number of bytes read into the array
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
  */
 size_t
 hs_file_read_u16(hs_file *fp, uint16_t *dst, const size_t size);
@@ -186,12 +186,12 @@ hs_file_read_u16(hs_file *fp, uint16_t *dst, const size_t size);
 /**
  * @brief reads an array of unsigned 32 bit integer from the stream.
  *
- * Thus function has the advantage of being endianness independent
+ * This function has the advantage of being endianness independent
  *
  * @param fp The file descriptor
  * @dst The array of integers
- * @size The size of the array
- * @return The number of bytes read into the array
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
  */
 size_t
 hs_file_read_u32(hs_file *fp, uint32_t *dst, const size_t size);
@@ -199,12 +199,12 @@ hs_file_read_u32(hs_file *fp, uint32_t *dst, const size_t size);
 /**
  * @brief reads an array of unsigned 64 bit integer from the stream.
  *
- * Thus function has the advantage of being endianness independent
+ * This function has the advantage of being endianness independent
  *
  * @param fp The file descriptor
  * @dst The array of integers
- * @size The size of the array
- * @return The number of bytes read into the array
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
  */
 size_t
 hs_file_read_u64(hs_file *fp, uint64_t *dst, const size_t size);
@@ -212,12 +212,12 @@ hs_file_read_u64(hs_file *fp, uint64_t *dst, const size_t size);
 /**
  * @brief reads an array of unsigned max system size integer from the stream.
  *
- * Thus function has the advantage of being endianness independent
+ * This function has the advantage of being endianness independent
  *
  * @param fp The file descriptor
  * @dst The array of integers
- * @size The size of the array
- * @return The number of bytes read into the array
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
  */
 size_t
 hs_file_read_umax(hs_file *fp, uintmax_t *dst, const size_t size);
@@ -227,8 +227,8 @@ hs_file_read_umax(hs_file *fp, uintmax_t *dst, const size_t size);
  *
  * @param fp The file descriptor
  * @dst The array of integers
- * @size The size of the array
- * @return The number of bytes read into the array
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
  */
 size_t
 hs_file_read_i8(hs_file *fp, uint8_t *dst, const size_t size);
@@ -236,12 +236,12 @@ hs_file_read_i8(hs_file *fp, uint8_t *dst, const size_t size);
 /**
  * @brief reads an array of signed 16 bit integer from the stream.
  *
- * Thus function has the advantage of being endianness independent
+ * This function has the advantage of being endianness independent
  *
  * @param fp The file descriptor
  * @dst The array of integers
  * @size The size of the array
- * @return The number of bytes read into the array
+ * @return The number of bytes read from the file
  */
 size_t
 hs_file_read_i16(hs_file *fp, uint16_t *dst, const size_t size);
@@ -249,12 +249,12 @@ hs_file_read_i16(hs_file *fp, uint16_t *dst, const size_t size);
 /**
  * @brief reads an array of signed 32 bit integer from the stream.
  *
- * Thus function has the advantage of being endianness independent
+ * This function has the advantage of being endianness independent
  *
  * @param fp The file descriptor
  * @dst The array of integers
- * @size The size of the array
- * @return The number of bytes read into the array
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
  */
 size_t
 hs_file_read_i32(hs_file *fp, uint32_t *dst, const size_t size);
@@ -262,64 +262,245 @@ hs_file_read_i32(hs_file *fp, uint32_t *dst, const size_t size);
 /**
  * @brief reads an array of signed 64 bit integer from the stream.
  *
- * Thus function has the advantage of being endianness independent
+ * This function has the advantage of being endianness independent
  *
  * @param fp The file descriptor
  * @dst The array of integers
- * @size The size of the array
- * @return The number of bytes read into the array
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
  */
 size_t
 hs_file_read_i64(hs_file *fp, uint64_t *dst, const size_t size);
 
+/**
+ * @brief reads an array of signed max system size integer from the stream.
+ *
+ * This function has the advantage of being endianness independent
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
+ */
 size_t
 hs_file_read_imax(hs_file *fp, intmax_t *dst, const size_t size);
 
+/**
+ * @brief Reads an array of floats from a file
+ *
+ * This function has the advantage of being endianness independent
+ *
+ * @param fp The file descriptor
+ * @dst The array of floats
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
+ */
 size_t
 hs_file_read_float(hs_file *fp, float *dst, const size_t size);
 
+/**
+ * @brief Reads an array of double floats from a file
+ *
+ * This function has the advantage of being endianness independent
+ *
+ * @param fp The file descriptor
+ * @dst The array of doubles
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
+ */
 size_t
 hs_file_read_double(hs_file *fp, double *dst, const size_t size);
 
+/**
+ * @brief Reads an array of long doubles from a file
+ *
+ * This function has the advantage of being endianness independent
+ *
+ * @param fp The file descriptor
+ * @dst The array of floats
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes read from the file
+ */
 size_t
 hs_file_read_ldouble(hs_file *fp, long double *dst, const size_t size);
 
+/**
+ * @brief writes an array of unsigned 8-bit integers into a file
+ *
+ * This function is the reverse operation of hs_file_read_u8()
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_u8(hs_file *fp, const uint8_t *value, const size_t size);
 
+/**
+ * @brief writes an array of unsigned 16-bit integers into a file
+ *
+ * This function is the reverse operation of hs_file_write_u16(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_u16(hs_file *fp, const uint16_t *value, const size_t size);
 
+/**
+ * @brief writes an array of unsigned 32-bit integers into a file
+ *
+ * This function is the reverse operation of hs_file_read_u32(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_u32(hs_file *fp, const uint32_t *value, const size_t size);
 
+/**
+ * @brief writes an array of unsigned 64-bit integers into a file
+ *
+ * This function is the reverse operation of hs_file_read_u64(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_u64(hs_file *fp, const uint64_t *value, const size_t size);
 
+/**
+ * @brief writes an array of maximun size integers into a file
+ *
+ * This function is the reverse operation of hs_file_read_umax(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_umax(hs_file *fp, const uintmax_t *value, const size_t size);
 
+/**
+ * @brief writes an array of signed 8-bit integers into a file
+ *
+ * This function is the reverse operation of hs_file_read_i8()
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_i8(hs_file *fp, const uint8_t *value, const size_t size);
 
+/**
+ * @brief writes an array of signed 16-bit integers into a file
+ *
+ * This function is the reverse operation of hs_file_read_i16(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_i16(hs_file *fp, const uint16_t *value, const size_t size);
 
+/**
+ * @brief writes an array of signed 32-bit integers into a file
+ *
+ * This function is the reverse operation of hs_file_read_i32(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_i32(hs_file *fp, const uint32_t *value, const size_t size);
 
+/**
+ * @brief writes an array of signed 64-bit integers into a file
+ *
+ * This function is the reverse operation of hs_file_read_i64(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_i64(hs_file *fp, const uint64_t *value, const size_t size);
 
+/**
+ * @brief writes an array of signed max size integers into a file
+ *
+ * This function is the reverse operation of hs_file_read_imax(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of integers
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_imax(hs_file *fp, const intmax_t *value, const size_t size);
 
+/**
+ * @brief writes an array of floats into a file
+ *
+ * This function is the reverse operation of hs_file_read_float(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of floats
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_float(hs_file *fp, const float *value, const size_t size);
 
+/**
+ * @brief writes an array of doubles into a file
+ *
+ * This function is the reverse operation of hs_file_read_double(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of doubles
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_double(hs_file *fp, const double *value, const size_t size);
 
+/**
+ * @brief writes an array of long doubles into a file
+ *
+ * This function is the reverse operation of hs_file_read_double(), and like it
+ * is endianness independent.
+ *
+ * @param fp The file descriptor
+ * @dst The array of long doubles
+ * @size The size of the array (in items, not bytes)
+ * @return The number of bytes write into the array 
+ */
 size_t
 hs_file_write_ldouble(hs_file *fp, const long double *value, const size_t size);
 
