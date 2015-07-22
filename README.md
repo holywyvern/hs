@@ -232,11 +232,32 @@ while (x) {
 
 ```
 
+For controls are different
+
+```coffeescript
+
+for id in object -> # it something like for each property of the object as id do...
+
+for i in [1, 2, 3] {
+ # objects can implement their own iteration method 
+}
+
+```
+
+Case controls work with another equality
+
+```coffeescript
+#They always 'break'
+case x {
+ when 1...3 : #code if x is between 1 and 3 ( (1...3).includes(x) )
+ when 2...5 : #code 
+ else #default
+}
+```
+
 ### Assignments
 
 Assignments are not expressions
-
-For controls are different
 
 ```coffeescript
 
@@ -272,26 +293,4 @@ x, y: y # illegal
 
 x: y, z # still illegal
 
-```
-
-
-```coffeescript
-
-for id in object -> # it something like for each property of the object as id do...
-
-for i in [1, 2, 3] {
- # objects can implement their own iteration method 
-}
-
-```
-
-Case controls work with another equality
-
-```coffeescript
-#They always 'break'
-case x {
- when 1...3 : #code if x is between 1 and 3
- when 2...5 : #code 
- else #default
-}
 ```
