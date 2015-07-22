@@ -546,7 +546,7 @@ hs_file_stat(hs_file *fp, hs_file_stat *stat);
  * @return zero on success, a non zero value on failure
  */
 int
-hs_file_stat(FILE *file, hs_file *fp );
+hs_file_descriptor(FILE *file, hs_file *fp );
  
 #define HS_FILE_POS_CURRENT 0
 #define HS_FILE_POS_START   1

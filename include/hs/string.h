@@ -23,4 +23,10 @@ struct hs_string
   char  *data;
 };
 
+int
+hs_string_init(hs_string *str, const char *data);
+
+void
+hs_string_end(hs_string *str);
+
 #endif /* HS_STRING_H */
