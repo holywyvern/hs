@@ -166,6 +166,14 @@ x: 'Hello world' # An string literal
 x: "Hello #{you}" # another string literal, but it adds interpolation with #{} 
 ```
 
+#### Regular expression literals
+
+```ruby
+x: /Hello/     # match Hello (case sensitive)
+x: /Hello/i    # match Hello (case insensitive)
+x: /[Hh]ello/  # match both Hello and hello (case sensitive)
+```
+
 #### Lamda literals
 
 In hs there is no thing as a method, methods have a this context like 
