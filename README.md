@@ -205,6 +205,8 @@ o: new {
 
 o.@x # illegal
 
+o.x # illegal, 'x' does not exists in 'o', so @x is effectively 'protected'
+
 o.double_x: () -> @x * 2 # legal, "this" is o when called as o.double_x()
 
 ```
@@ -232,7 +234,15 @@ while (x) {
 
 For controls are different
 
+```coffeescript
+
 for id in object -> # it something like for each property of the object as id do...
+
+for i in [1, 2, 3] {
+ # objects can implement their own iteration method 
+}
+
+```
 
 Case controls work with another equality
 
