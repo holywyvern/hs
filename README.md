@@ -18,6 +18,10 @@ A file manipulation library with UTF-8 support for every platform.
 ### hs/gc (TODO)
 Contains a generic garbage collector.
 
+### hs/lexer
+Contains a simple lexer (also called sometimes tokenizer) to ensure to be
+easily used from external sources.
+
 ### hs/list
 Contains an implementation of a double linked list
 
