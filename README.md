@@ -232,7 +232,48 @@ while (x) {
 
 ```
 
+### Assignments
+
+Assignments are not expressions
+
 For controls are different
+
+```coffeescript
+
+if x: something() { #wont work
+ # ...
+}
+
+```
+
+They can still be chained:
+
+```coffeescript
+x: y: z: 23 # x, y and z are now 23
+```
+
+And multiple assignments can be done in a single sentence
+
+```coffeescript
+x, y: y, x # common swap of values
+```
+
+You cannot chain this type of assignments:
+
+```coffeescript
+x, y: y, z: z, q # Illegal
+```
+
+And both sides always needs the same number of elements
+
+```coffeescript
+
+x, y: y # illegal
+
+x: y, z # still illegal
+
+```
+
 
 ```coffeescript
 
