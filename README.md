@@ -299,8 +299,11 @@ Case controls work with another equality
 ```coffeescript
 #They always 'break'
 case x {
- when 1...3 : #code if x is between 1 and 3 ( (1...3).includes(x) )
- when 2...5 : #code 
- else #default
+ when 1...3 : 
+   #code if x is between 1 and 3 ( (1...3).includes(x) )
+ when 2...5 : 
+   # more code 
+ else 
+   #default code
 }
 ```
