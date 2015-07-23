@@ -287,6 +287,7 @@ multiple assignment
   | <if sentence>
   | <while sentence>
   | <for sentence>
+  | <case sentence>
   | <assignment>
   | <expression>
   ;
@@ -331,4 +332,20 @@ while sentence
   
 for sentence
   : 'for' <identifier> 'in' <expression> <block> 
+  ;
+  
+case sentence
+  : 'case' <expression> <case block>
+  ;
+  
+case block
+  : '{' <case comparison>* <else case>? '}'
+  ;
+  
+case comparison
+  : 'when' <expression> <sentence separator> <sentence list>?
+  ;
+  
+else case
+  : 'else' <sentence separator> <sentence list>
   ;
