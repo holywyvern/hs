@@ -337,7 +337,7 @@ a_promise: catch {
  #do something that can fail
 }
 
-if (a_promise.error) {
+if (a_promise.error()) {
   # handle the error
   # sometimes you just throw again the error
   throw a_promise.error
