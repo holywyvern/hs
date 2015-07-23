@@ -1,7 +1,9 @@
   
   
 literal
-  : <range literal>
+  : <catch literal>
+  | <thread literal>
+  | <range literal>
   | <numeric literal>
   | <float literal>
   | <regexp literal>
@@ -15,7 +17,22 @@ array literal
   : '[' <expression list>? ']'
   ;
 
+catch literal
+  : <specific catch>
+  | <general catch>
+  ;
 
+specific catch
+  : 'catch' <expression> <block>
+  ;
+  
+general catch
+  : 'catch' <block>
+  ;
+  
+thread literal
+  : 'do' <block> 
+  ;
   
 map literal
   : '{' <map list>? '}'
@@ -336,6 +353,7 @@ multiple assignment
   | <while sentence>
   | <for sentence>
   | <case sentence>
+  | <throw sentence>
   | <assignment>
   | <expression>
   ;
@@ -396,4 +414,8 @@ case comparison
   
 else case
   : 'else' <sentence separator> <sentence list>
+  ;
+  
+throw sentence
+  : 'throw' <expression>
   ;

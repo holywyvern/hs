@@ -322,3 +322,95 @@ case x {
    #default code
 }
 ```
+
+### Promises
+
+### catch values
+
+You can try to run code in a sandbox like block
+The exception handling works different from other languages,
+you don't use a finally block, because try blocks protects code in a box. 
+
+```coffeescript
+
+a_promise: catch {
+ #do something that can fail
+}
+
+if (a_promise.error) {
+  # handle the error
+  # sometimes you just throw again the error
+  throw a_promise.error
+}
+
+a_promise.resolve() # in this case, will return nil
+
+```
+
+You can use this also to catch only some object types
+
+```coffeescript
+
+promise: catch AnErrorType {
+  # do something dangerous
+}
+
+```
+
+#### Threads
+
+Threads are also considered promises
+
+```coffeescript
+
+promise: do {
+  # do something asynchronically
+}
+
+promise.resolve() # waits until the promise ends and returns its value
+
+```
+
+Be aware of this, objects captured on the promise cannot be used outside after
+the call
+
+```coffeescript
+
+x: "some string here, and there"
+y: ['an', 'array', 'of', 'words']
+promise: do {
+  y: x.split(',') # will make an array of ['some string here' ' and there']
+}
+
+do_something(x) # Because x was used inside the promise, it is now null
+do_another_thingy(y) # y is not null, because the promise don't capture it
+
+promise.resolve() # waits until the promise ends and returns its value
+
+```
+
+To get a value from a promise, just use the strategy of returning something from
+it:
+
+```coffeescript
+
+promise: do {
+  return 23
+}
+
+x: promise.resolve() # will return 23
+
+```
+
+Remember, catch blocks does not have this ownership on capture.
+
+#### Why does this happens ?
+
+Each thread runs a small garbage collector, for the idea of, when threads are 
+closed they can easily know wich resources they should use.
+
+Promises are elements with the capacity to transfer objects between threads.
+But because capturing them switches threads, they are not owned again by the 
+other.
+The language should detect wich objects are captured automatically, this may be
+an slow process at first, but allows a clear security model arround.
