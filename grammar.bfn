@@ -1,0 +1,141 @@
+literal
+  : <range literal>
+  | <numeric literal>
+  | <float literal>
+  | <regexp literal>
+  | <string literal>
+  | <array literal>
+  | <map literal>
+  | <function literal>
+  ;
+
+range literal
+  : <range with step>
+  | <range without step>
+  ;
+  
+range with step
+  : <range without step> '\' <numeric literal>
+  ;
+  
+range without step
+  : <range value> <range inclusion> <range value>
+  ;
+  
+range value
+  : <numeric literal>
+  | <string literal>
+  ;
+  
+range inclusion
+  : '...'
+  | '..'
+  ;
+  
+numeric literal
+  : <float literal>
+  | <string literal>
+  ;
+  
+function literal
+  : '(' <argument definition> ')' <block>
+  ;
+  
+argument definition
+  :
+  ;
+  
+block
+  : <line block>
+  | <multiline block>
+  ;
+  
+line block
+  : '->' <sentence>
+  ;
+  
+multiline block
+  : '{' <sentence list>? '}'
+  ;
+  
+sentence list
+  : <sentence (<sentence separator>+ <sentence>)*
+  ;
+  
+sentence separator
+  : <newline>
+  | ';'
+  ;
+  
+float literal
+  : <exponential float>
+  | <required float>
+  ;
+
+regexp literal
+  : "/" (<interpolated string>|<string escape>|<regexp character>)* "/" <regexp flag>*
+  ;
+  
+regexp character
+  = any character except newline or '/'
+  ;
+  
+regexp flag
+  = ([a-z] | [A-Z])
+  ;
+  
+exponential float
+  : <optional float> ( 'e' | 'E' ) '-'? <optional float>
+  ;
+
+optional float
+  : <required float>
+  | <decimal integer>
+  ;
+  
+required float
+  : <decimal integer> '.' <decimal integer>
+  ;
+  
+decimal integer
+  : [0-9] ( "'" [0-9] )+
+  ;
+  
+string literal
+  : <single quoted string>
+  | <double quoted string>
+  ;
+
+single quoted string
+  : "'" (<string escape> | <string character>)* "'" 
+  ;
+  
+double quoted string
+  : '"'  (<interpolated string>|<string escape>|<string character>)* '"' 
+  ;
+  
+string escape
+  : <unicode escape>
+  | <ascii escape>
+  | <string escaped character>
+  ;
+  
+unicode escape
+  : '\' ('u' | U) <hex digit> < hex digit> <hex digit> < hex digit>
+  ;
+  
+ascii escape
+  : '\' <hex digit> < hex digit>
+  ;
+  
+string escaped character
+  : '\' <string character> # n, r, t, v, f have special values
+  ;
+  
+string character
+  : any character except newline, the string quote or carrier return
+  ;
+  
+interpolated string
+  : '#' '{' <expression> '}'
+  ;
