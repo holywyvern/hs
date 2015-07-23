@@ -1,3 +1,5 @@
+  
+  
 literal
   : <range literal>
   | <numeric literal>
@@ -38,11 +40,16 @@ numeric literal
   ;
   
 function literal
-  : '(' <argument definition> ')' <block>
+  : '(' <argument definition>? ')' <block>
   ;
   
 argument definition
-  :
+  : <argument> (',' <argument>)* 
+  ;
+  
+argument
+  : <optional argument>
+  | <identifier>
   ;
   
 block
@@ -59,7 +66,7 @@ multiline block
   ;
   
 sentence list
-  : <sentence (<sentence separator>+ <sentence>)*
+  : <sentence> (<sentence separator>+ <sentence>)*
   ;
   
 sentence separator
@@ -138,4 +145,190 @@ string character
   
 interpolated string
   : '#' '{' <expression> '}'
+  ;
+  
+expression list
+  : <expression> ( ',' <expression> )*
+  ;  
+  
+expression
+  : <boolean expression> '?' <boolean expression> ':' <expression>
+  ;
+  
+boolean expression
+  : <and expression> ('||' <and expression>)*
+  ;
+  
+and expression
+  : <compare expression> ('&&' <compare expression>)*
+  ;
+  
+compare expression
+  : <add expression> <compare operator> <add expression>
+  | <add expression>
+  ;
+  
+compare operator
+  : '<=>'
+  | '<='
+  | '>='
+  | '=='
+  | '=~'
+  | '!~'
+  | '!='
+  | '<'
+  | '>'  
+  ;
+  
+add expression
+  : <term> (<add operator> <term>)*
+  ;
+  
+add operator
+  : '+'
+  | '-'
+  | '|'
+  | '^'
+  ;
+  
+term
+  : <factor> (<term operator> <factor>)*
+  
+term operator
+  : '<<'
+  | '>>'
+  | '%%'
+  | '*'
+  | '%'
+  | '/'
+  | '&'
+  ;
+  
+factor
+  : <unary expression> ( '**' <unary expression> )*
+  ;
+  
+unary expression
+  : <unary operator> <unary expression>
+  | <method call>
+  ;
+  
+unary operator
+  : '++'
+  | '--'
+  | '+'
+  | '-'
+  | '!'
+  | '~'
+  ;
+  
+method call
+  : <method receiver> <method caller>*
+  ;
+  
+method receiver
+  : <literal>
+  | <identifier>
+  | <sub expression>
+  ;
+  
+sub expression
+  : '(' expression ')'
+  ;
+  
+method caller
+  : <id caller>
+  | <invoke caller>
+  | <subscript caller>
+  ;
+  
+id caller
+  : '.' <identifier>
+  ;
+  
+invoke caller
+  : <sub expression>
+  | <argument call>
+  ;
+  
+argument call
+  : <optional argument> (',' <optional argument>)*
+  ;
+  
+optional argument
+  : <identifier> ':' <expression>
+  ;
+  
+subscript caller
+  : '[' <expression list> ']'
+  ;
+  
+identifier
+  : ([A-Z] | [a-z_]) ([A-Z] | [a-z] | [0-9] | '_')*
+  ;
+  
+assignment
+  : <chained assignment>
+  | <multiple assignment>
+  ;
+  
+chained assignment
+  : <expression> (':' <expression>)*
+  ;
+  
+multiple assignment
+  : <expression list> ':' <expression list>
+  ;
+  
+<sentence>
+  : <return sentence>
+  | <break sentence>
+  | <continue sentence>
+  | <if sentence>
+  | <while sentence>
+  | <for sentence>
+  | <assignment>
+  | <expression>
+  ;
+  
+return sentence
+  : <expression return>
+  | <nil return>
+  ;
+  
+expression return
+  : 'return' <expression>
+  ;
+  
+nil return
+  : 'return'
+  ;
+  
+break sentence
+  : 'break'
+  ;
+  
+continue sentence
+  : 'continue'
+  ;
+  
+if sentence
+  : <if else>
+  | <simple if>
+  ;
+  
+if else
+  : <simple if> 'else' <block>
+  ;
+  
+simple if
+  : 'if' <expression> <block>
+  ;
+  
+while sentence
+  : 'while' <expression> <block> 
+  ;
+  
+for sentence
+  : 'for' <identifier> 'in' <expression> <block> 
   ;
