@@ -383,9 +383,29 @@ promise: do {
 }
 
 do_something(x) # Because x was used inside the promise, it is now null
-do_another_thingy(y) # y is not null, because the promise don't capture it
+# y is not null, because the promise don't capture it
+# note: the y inside the promise is its own value, variables inside a promise 
+# have its own scope, but they have as read only the values from the outside
+# this 'y' is ['an', 'array', 'of', 'words']
+do_another_thingy(y) 
 
 promise.resolve() # waits until the promise ends and returns its value
+
+```
+
+To avoid capturing, you may like to do something like
+
+```coffeescript
+
+x: "some string here, and there"
+promise: do {
+  # This x, is another entity now, it was never read before, so it is not 
+  # captured
+  x: null 
+  more: x # this will use null
+}
+
+print(x) # x will still be "some string here, and there"
 
 ```
 
