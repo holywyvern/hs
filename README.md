@@ -1,5 +1,20 @@
 # Humming Script
-Humming script contains a collection of modular pieces in c, to create an interpreted language
+Humming script contains a collection of modular pieces in c, to create an 
+interpreted language
+
+## Why are you making yet another language?
+
+Making another language is only part of the goal of this.
+I am trying to create a set of cross platform libraries for C also.
+But the inspiration comes from the idea of I want to learn about how a language
+works from the inside.
+
+This language won't replace any other, nor it needs to be a commercial success
+it's not its goal, that's why they are actually documented and published as a 
+really permissive public license.
+
+Yo may want to use this to learn, modify, distribute, change and improve as you 
+wish.
 
 ## Files included
 
@@ -286,7 +301,7 @@ For controls are different
 
 ```coffeescript
 
-for id in object -> # it something like for each property of the object as id do...
+for i in object -> # for each property of object...
 
 for i in [1, 2, 3] {
  # objects can implement their own iteration method 
